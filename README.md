@@ -1,4 +1,4 @@
-# Sam mag Bäume, aber sie ihn nicht (Version 7)
+# Sam mag Bäume, aber sie ihn nicht (Version 9)
 
 Eigenständige 2.5D-Diorama-Web-App für Android (PWA) und Desktop mit 100 Leveln, drei Spielmodi (Normal, Challenge, Rage-Mode) und Network-First-Update-Strategie.
 
@@ -10,7 +10,7 @@ Eigenständige 2.5D-Diorama-Web-App für Android (PWA) und Desktop mit 100 Level
 - Katapult-Platten: Unauffällige Kopfsteinpflaster-Platten schleudern die Figur rückwärts.
 - Audio-Finte: Gelegentliches Revolver-Klick-Klack ohne Schuss.
 - Revolver-Tür: Die Ziel-Hütte feuert beim Annähern einen Schuss aus der Tür ab, bevor sie betretbar wird.
-- Network-First Service Worker (`sw.js`, Cache `v6`): Alle Geräte laden bei Internetverbindung automatisch die aktuelle Version.
+- Network-First Service Worker (`sw.js`, Cache `sam-mag-baeume-v9`): Alle Geräte laden bei Internetverbindung automatisch die aktuelle Version.
 
 ## Update auf GitHub Pages
 1. Archiv lokal entpacken.

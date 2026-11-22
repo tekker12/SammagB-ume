@@ -7,8 +7,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="Sam mag Bäume, aber sie ihn nicht">
+  <meta name="apple-mobile-web-app-title" content="Sam mag Bäume, aber sie ihn nicht">
   <title>Sam mag Bäume, aber sie ihn nicht</title>
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="./manifest.json?v=9">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
@@ -159,7 +161,7 @@
 <div id="menuOverlay" class="overlay">
   <div class="card">
     <h1>SAM MAG BÄUME,<br>ABER SIE IHN NICHT</h1>
-    <p class="sub">Version 6 · 2.5D-Diorama · 100 Level · Rage-Mode</p>
+    <p class="sub">Version 9 · 2.5D-Diorama · 100 Level · Rage-Mode</p>
 
     <div class="preview-wrap">
       <canvas id="charPreview" width="156" height="168"></canvas>
@@ -364,13 +366,13 @@
   }
 
   // Save Data
-  const STORAGE_KEY = 'bhd_rage_v6';
+  const STORAGE_KEY = 'sam_mag_baeume_save';
   let save = {
     hat: 'none', glasses: 'round', shirt: '#2563eb', hair: '#5c361e',
     mode: 'normal', maxUnlocked: 1, selectedLevel: 1, totalDeaths: 0
   };
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('bhd_rage_v6');
     if (raw) save = { ...save, ...JSON.parse(raw) };
   } catch (e) {}
   save.maxUnlocked = Math.max(1, Math.min(MAX_LEVEL, save.maxUnlocked || 1));
@@ -1245,7 +1247,7 @@
         if (fb.slamT <= 0) {
           fb.handActive = false; camera.shake = 10; sfxBoom();
           if (Math.hypot(player.x - fb.x, player.y - fb.y) < fb.blastR) {
-            killPlayer(fb.type === 'axe' ? 'Die Axt war natürlich ein Köder.' : 'Die lila Blume hasst dich auch.', 0, 1);
+            killPlayer(fb.type === 'axe' ? 'Die Axt war natürlich ein Köder.' : 'Die lila Blume mag Sam auch nicht.', 0, 1);
           }
         }
       }

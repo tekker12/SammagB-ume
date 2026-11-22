@@ -1,8 +1,9 @@
-const CACHE_NAME = 'baeume-hassen-dich-v7';
+const CACHE_NAME = 'sam-mag-baeume-v9';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './manifest.json?v=9',
   './icon.svg'
 ];
 
