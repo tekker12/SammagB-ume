@@ -1,16 +1,13 @@
-# Bäume hassen dich – Ultra-Troll Edition (100 Level)
+# Bäume hassen dich – Rage-Edition (100 Level)
 
-2.5D-Diorama-Web-App für Android (PWA) und Desktop mit stark erhöhter Schwierigkeit und unberechenbaren Troll-Mechaniken.
+Eigenständige 2.5D-Diorama-Web-App für Android (PWA) und Desktop mit polierter Grafik und exponentieller Schwierigkeitskurve von Level 1 (leichter Einstieg) bis Level 100 (Rage-Mode).
 
-## Neuerungen in Version 4 (Ultra-Troll)
-- Unberechenbare Schilder: Schilder lügen nicht mehr pauschal. Sie wechseln deterministisch pro Level zwischen Wahrheit, Lüge und Textwechsel bei Annäherung.
-- Fake-Checkpoints: Grüne Checkpoint-Flaggen auf dem Weg lösen bei Berührung eine Falle aus statt zu speichern.
-- Weglaufende Ziel-Hütte: In ausgewählten Leveln weicht die Hütte beim ersten Annähern nach oben aus und gibt eine letzte Tannen-Falle frei.
-- Verwirrungs-Pilze: Leuchtende Pilze kehren die Steuerung für 2,8 Sekunden um.
-- Verschärfte Gegner-KI: Revolver-Tannen mit Doppelschuss-Salven (Burst) und schnellerer Auslösung, aggressivere Verfolger-Tannen, schnellere Doppel-Fallbäume und Kopfsteinpflaster-Sprungfallen.
-- 100 Level in 10 Biomen mit steilerer Schwierigkeitskurve ab Level 1.
+## Neuerungen in Version 5
+- Überarbeitete 2.5D-Diorama-Optik: Umgebungsverdeckung (Ambient Occlusion) unter Kliffkanten, plastisches Kopfsteinpflaster mit Lichtkanten, im Wind wiegende Low-Poly-Tannen, atmosphärische Partikel je Biom, Schornsteinrauch an der Ziel-Hütte und dezente Sonnenlicht-Vignette.
+- Exponentielle Schwierigkeitskurve: Level 1–10 bieten einen fairen, machbaren Einstieg; ab Level 11 steigen Fallen-Dichte, Geschwindigkeit und Troll-Mechaniken kontinuierlich an, bis Level 76–100 den extremen Rage-Mode erreichen.
+- Vollständiges Troll-Arsenal: unberechenbare Schilder (Wahrheit, Lüge und Textwechsel bei Annäherung), Fake-Checkpoints, weglaufende Ziel-Hütte, Verwirrungs-Pilze (Steuerungsumkehr), Kopfsteinpflaster-Fallen, Doppel-Fakeout-Fallbäume, Salven-Revolver-Tannen und Pause-Menü-Falle.
 
 ## Update auf GitHub Pages
-1. Archiv entpacken.
-2. Alle sieben Dateien über das `+`-Menü („Dateien hochladen“) im Branch `main` hochladen und committen.
-3. Durch Cache-Version `v4` in `sw.js` aktualisiert sich die Android-PWA beim nächsten Laden selbstständig.
+1. Archiv lokal entpacken.
+2. Alle sieben Dateien im Hauptverzeichnis des Branches `main` über „Dateien hochladen“ ersetzen und committen.
+3. Durch Cache-Kennung `baeume-hassen-dich-v5` in `sw.js` lädt Android die neue Version beim nächsten Start automatisch nach.

@@ -1,12 +1,12 @@
 {
-  "name": "Bäume hassen dich – Ultra-Troll (100 Level)",
+  "name": "Bäume hassen dich – Rage-Edition (100 Level)",
   "short_name": "Bäume hassen dich",
-  "description": "2.5D-Diorama-Geschicklichkeitsspiel im Ultra-Troll-Modus mit 100 Leveln, unberechenbaren Schildern, Fake-Checkpoints und weglaufenden Hütten.",
+  "description": "2.5D-Diorama-Geschicklichkeitsspiel mit 100 Leveln: leichter Einstieg, exponentiell steigender Rage-Mode bis Level 100.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#2b4d16",
+  "background_color": "#244012",
   "theme_color": "#2d5a17",
   "icons": [
     {

@@ -7,14 +7,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Bäume hassen dich – Ultra-Troll</title>
+  <title>Bäume hassen dich – Rage-Edition</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-      background: #2b4d16; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #244012; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       touch-action: none; color: #f6f4eb;
     }
     canvas#game { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -22,20 +22,21 @@
     .overlay {
       position: fixed; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; padding: 12px;
-      background: rgba(18, 28, 12, 0.88); backdrop-filter: blur(5px); z-index: 20;
+      background: rgba(15, 24, 10, 0.86); backdrop-filter: blur(6px); z-index: 20;
       overflow-y: auto;
     }
     .hidden { display: none !important; }
     .card {
-      background: #27381f; border: 3px solid #6b963b; border-radius: 18px;
-      padding: 15px 18px; width: 100%; max-width: 450px;
-      box-shadow: 0 14px 36px rgba(0,0,0,0.6);
+      background: linear-gradient(180deg, #2b3f22 0%, #203019 100%);
+      border: 3px solid #76a642; border-radius: 18px;
+      padding: 16px 18px; width: 100%; max-width: 450px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.65);
     }
-    h1 { margin: 0 0 2px; font-size: 1.44rem; text-align: center; color: #f7e479; letter-spacing: 0.4px; }
+    h1 { margin: 0 0 2px; font-size: 1.46rem; text-align: center; color: #f7e479; letter-spacing: 0.4px; }
     .sub { text-align: center; font-size: 0.82rem; color: #cfe0be; margin: 0 0 10px; }
 
     .preview-wrap {
-      display: flex; align-items: center; gap: 12px; background: #1d2b16;
+      display: flex; align-items: center; gap: 12px; background: #1a2614;
       border: 2px solid #537a2b; border-radius: 12px; padding: 8px 10px; margin-bottom: 10px;
     }
     #charPreview {
@@ -46,11 +47,11 @@
     .field label { display: block; font-size: 0.72rem; color: #bfd4aa; margin-bottom: 2px; }
     .field select {
       width: 100%; padding: 5px 7px; border-radius: 7px; border: 2px solid #537a2b;
-      background: #172312; color: #f6f4eb; font-size: 0.82rem; font-weight: 600;
+      background: #141f0f; color: #f6f4eb; font-size: 0.82rem; font-weight: 600;
     }
 
     .level-box {
-      background: #1d2b16; border: 2px solid #537a2b; border-radius: 10px;
+      background: #1a2614; border: 2px solid #537a2b; border-radius: 10px;
       padding: 8px 10px; margin-bottom: 10px;
     }
     .level-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -66,19 +67,20 @@
     .mode-row { display: flex; gap: 8px; margin-bottom: 11px; }
     .mode-btn {
       flex: 1; padding: 8px; border-radius: 10px; border: 2px solid #537a2b;
-      background: #172312; color: #cfe0be; font-weight: 700; cursor: pointer; font-size: 0.82rem;
+      background: #141f0f; color: #cfe0be; font-weight: 700; cursor: pointer; font-size: 0.82rem;
     }
     .mode-btn.active { background: #4a8a24; border-color: #f7e479; color: #fff; }
 
     .btn-primary {
       width: 100%; padding: 11px; border: none; border-radius: 12px;
-      background: #e6a23c; color: #1a1a1a; font-size: 1rem; font-weight: 800;
-      cursor: pointer; box-shadow: 0 4px 0 #a36d1c;
+      background: linear-gradient(180deg, #f0b24d 0%, #d99126 100%);
+      color: #1a1a1a; font-size: 1rem; font-weight: 800;
+      cursor: pointer; box-shadow: 0 4px 0 #945f12;
     }
-    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #a36d1c; }
+    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #945f12; }
     .btn-sec {
       width: 100%; padding: 9px; border: 2px solid #638f39; border-radius: 10px;
-      background: #1d2b16; color: #f6f4eb; font-size: 0.9rem; font-weight: 700;
+      background: #1a2614; color: #f6f4eb; font-size: 0.9rem; font-weight: 700;
       cursor: pointer; margin-top: 7px;
     }
     .btn-tip {
@@ -97,31 +99,28 @@
       pointer-events: none; z-index: 10;
     }
     .hud-pill {
-      background: rgba(24, 36, 17, 0.88); border: 2px solid #6b963b;
+      background: rgba(20, 31, 14, 0.88); border: 2px solid #76a642;
       border-radius: 10px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700;
-      line-height: 1.35; color: #f6f4eb;
+      line-height: 1.38; color: #f6f4eb; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
     .hud-sub { display: block; font-size: 0.72rem; color: #f7e479; font-weight: 700; }
-    .rage-badge {
-      display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px;
-      background: #3b5923; color: #fff; font-size: 0.7rem;
+    .badge {
+      display: inline-block; margin-left: 5px; padding: 1px 6px; border-radius: 6px;
+      background: #3b5923; color: #fff; font-size: 0.69rem;
     }
-    .confuse-badge {
-      display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px;
-      background: #9333ea; color: #fff; font-size: 0.7rem;
-    }
+    .confuse-badge { background: #9333ea; }
     .hud-actions { display: flex; gap: 8px; pointer-events: auto; }
     .icon-btn {
-      width: 44px; height: 44px; border-radius: 12px; border: 2px solid #6b963b;
-      background: rgba(24, 36, 17, 0.88); color: #f6f4eb; font-size: 1.18rem;
+      width: 44px; height: 44px; border-radius: 12px; border: 2px solid #76a642;
+      background: rgba(20, 31, 14, 0.88); color: #f6f4eb; font-size: 1.18rem;
       font-weight: 800; display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
     .icon-btn:active { background: #3f6326; }
 
     #toast {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: rgba(20, 30, 14, 0.94); border: 2px solid #f7e479;
+      background: rgba(18, 28, 12, 0.95); border: 2px solid #f7e479;
       color: #f7e479; padding: 7px 14px; border-radius: 999px; font-size: 0.82rem;
       font-weight: 700; z-index: 15; pointer-events: none; opacity: 0;
       transition: opacity 0.2s; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
@@ -138,8 +137,9 @@
     <span id="hudMain">Level 1/100 · 00:00.0 · Tode: 0</span>
     <span class="hud-sub">
       <span id="hudBiome">Sonnenterrasse</span>
-      <span class="rage-badge" id="rageBadge">Ärger: Ruhig</span>
-      <span class="confuse-badge hidden" id="confuseBadge">STEUERUNG VERDREHT</span>
+      <span class="badge" id="tierBadge">Einstieg</span>
+      <span class="badge" id="rageBadge">Ärger: Ruhig</span>
+      <span class="badge confuse-badge hidden" id="confuseBadge">VERDREHT</span>
     </span>
   </div>
   <div class="hud-actions">
@@ -154,7 +154,7 @@
 <div id="menuOverlay" class="overlay">
   <div class="card">
     <h1>BÄUME HASSEN DICH</h1>
-    <p class="sub">Ultra-Troll Edition · 100 Level · Kein Mitleid</p>
+    <p class="sub">2.5D-Diorama · 100 Level · Leicht bis Fast Unmöglich</p>
 
     <div class="preview-wrap">
       <canvas id="charPreview" width="156" height="168"></canvas>
@@ -203,7 +203,7 @@
     <div class="level-box">
       <div class="level-row">
         <span id="selectedLevelLabel">Start-Level: 1 / 100</span>
-        <small id="selectedBiomeLabel">Sonnenterrasse</small>
+        <small id="selectedBiomeLabel">Sonnenterrasse · Einstieg</small>
       </div>
       <div class="level-controls">
         <button class="mini-btn" id="btnLvlMinus">-</button>
@@ -265,6 +265,7 @@
   const hud = document.getElementById('hud');
   const hudMain = document.getElementById('hudMain');
   const hudBiome = document.getElementById('hudBiome');
+  const tierBadge = document.getElementById('tierBadge');
   const rageBadge = document.getElementById('rageBadge');
   const confuseBadge = document.getElementById('confuseBadge');
   const toastEl = document.getElementById('toast');
@@ -288,21 +289,30 @@
   const unlockedLabel = document.getElementById('unlockedLabel');
   const totalDeathsLabel = document.getElementById('totalDeathsLabel');
 
+  // 10 Rich Diorama Biomes with ambient particles
   const BIOMES = [
-    { name: 'Sonnenterrasse',     grass: '#4ea314', grassHi: '#5db81d', cliff: '#b9956f', cliffDark: '#8c6b49', stone: '#8d9299', pine: '#52c41a', pineDark: '#368a0c', ice: false },
-    { name: 'Herbst-Terrasse',    grass: '#8a7a1c', grassHi: '#a18f22', cliff: '#a87d56', cliffDark: '#7a5738', stone: '#8d8b86', pine: '#c95e1a', pineDark: '#963f0b', ice: false },
-    { name: 'Moor-Stufen',        grass: '#3b6e4c', grassHi: '#48825b', cliff: '#7a7562', cliffDark: '#575344', stone: '#7a8580', pine: '#2f8a68', pineDark: '#1f6148', ice: false },
-    { name: 'Fels-Schlucht',      grass: '#4b8225', grassHi: '#5a992d', cliff: '#968879', cliffDark: '#6b6054', stone: '#7e838a', pine: '#3ca328', pineDark: '#267317', ice: false },
-    { name: 'Revolver-Hain',      grass: '#478f19', grassHi: '#57a822', cliff: '#ad8963', cliffDark: '#806243', stone: '#868c94', pine: '#4ab818', pineDark: '#31820c', ice: false },
-    { name: 'Blumen-Wiese',       grass: '#55ad1c', grassHi: '#67c427', cliff: '#bfa07a', cliffDark: '#8f7454', stone: '#9499a1', pine: '#59cc1f', pineDark: '#3c9610', ice: false },
-    { name: 'Abend-Kliff',        grass: '#2d5932', grassHi: '#396e3f', cliff: '#6b5a52', cliffDark: '#4a3d37', stone: '#686e7a', pine: '#2e7d4b', pineDark: '#1d5431', ice: false },
-    { name: 'Winter-Terrasse',    grass: '#9ec4d6', grassHi: '#b5d6e6', cliff: '#7f8f9c', cliffDark: '#5b6975', stone: '#a4b2bd', pine: '#3b8c7c', pineDark: '#266155', ice: true  },
-    { name: 'Asche-Plateau',      grass: '#594238', grassHi: '#6e5246', cliff: '#69473d', cliffDark: '#472e27', stone: '#6b6363', pine: '#a83c24', pineDark: '#752513', ice: false },
-    { name: 'Gipfel der Rache',   grass: '#3b2b59', grassHi: '#4b3770', cliff: '#70586b', cliffDark: '#4d3a49', stone: '#7a7085', pine: '#66248f', pineDark: '#431461', ice: false }
+    { name: 'Sonnenterrasse',   grass: '#51a816', grassHi: '#65bf22', cliff: '#bf9a73', cliffDark: '#8c6946', stone: '#90969e', pine: '#52c41a', pineDark: '#368a0c', pineTip: '#78eb2d', ice: false, amb: '#fff8b3' },
+    { name: 'Herbst-Terrasse',  grass: '#8f7d1d', grassHi: '#a89425', cliff: '#ad8058', cliffDark: '#7a5637', stone: '#8f8d88', pine: '#d1611b', pineDark: '#99400a', pineTip: '#f08a2e', ice: false, amb: '#f59e0b' },
+    { name: 'Moor-Stufen',      grass: '#3b704d', grassHi: '#4a875f', cliff: '#7d7764', cliffDark: '#575344', stone: '#7a8580', pine: '#2f8f6b', pineDark: '#1f6349', pineTip: '#48b88e', ice: false, amb: '#a7f3d0' },
+    { name: 'Fels-Schlucht',    grass: '#4c8725', grassHi: '#5ea130', cliff: '#9c8d7d', cliffDark: '#6b6054', stone: '#7e838a', pine: '#3ca828', pineDark: '#267517', pineTip: '#5cd145', ice: false, amb: '#e5e7eb' },
+    { name: 'Revolver-Hain',    grass: '#489419', grassHi: '#5aad23', cliff: '#b38e66', cliffDark: '#806243', stone: '#868c94', pine: '#4cbd19', pineDark: '#31850c', pineTip: '#71e334', ice: false, amb: '#fde68a' },
+    { name: 'Blumen-Wiese',     grass: '#58b31d', grassHi: '#6cc928', cliff: '#c4a47d', cliffDark: '#8f7454', stone: '#9499a1', pine: '#5bd11f', pineDark: '#3c9610', pineTip: '#80f03e', ice: false, amb: '#f0abfc' },
+    { name: 'Abend-Kliff',      grass: '#2d5c33', grassHi: '#3a7341', cliff: '#6e5c54', cliffDark: '#4a3d37', stone: '#686e7a', pine: '#2e804c', pineDark: '#1d5732', pineTip: '#45ab6a', ice: false, amb: '#fdba74' },
+    { name: 'Winter-Terrasse',  grass: '#a3cadb', grassHi: '#badceb', cliff: '#8293a1', cliffDark: '#5b6975', stone: '#a4b2bd', pine: '#3c9180', pineDark: '#266357', pineTip: '#63baa9', ice: true,  amb: '#ffffff' },
+    { name: 'Asche-Plateau',    grass: '#5c443a', grassHi: '#735548', cliff: '#6e493e', cliffDark: '#472e27', stone: '#6b6363', pine: '#b03e25', pineDark: '#782613', pineTip: '#e05a3a', ice: false, amb: '#fb923c' },
+    { name: 'Gipfel der Rache', grass: '#3d2c5e', grassHi: '#4e3975', cliff: '#735a6e', cliffDark: '#4d3a49', stone: '#7a7085', pine: '#6c2596', pineDark: '#451463', pineTip: '#973fd1', ice: false, amb: '#f43f5e' }
   ];
 
   function getBiome(lvl) {
     return BIOMES[Math.min(BIOMES.length - 1, Math.floor((lvl - 1) / 10))];
+  }
+
+  function getDifficultyTier(lvl) {
+    if (lvl <= 10) return { label: 'Einstieg', bg: '#3b7a24' };
+    if (lvl <= 30) return { label: 'Fies', bg: '#7c7a1a' };
+    if (lvl <= 55) return { label: 'Brutal', bg: '#b55d18' };
+    if (lvl <= 75) return { label: 'Rage-Mode', bg: '#b82c24' };
+    return { label: 'Fast Unmöglich', bg: '#6e0d25' };
   }
 
   // Audio Synthesizer
@@ -336,7 +346,7 @@
   }
   function sfxClickClack() {
     playTone(760, 0.04, 'square', 0.09, -240);
-    setTimeout(() => playTone(980, 0.045, 'square', 0.09, -180), 50);
+    setTimeout(() => playTone(980, 0.045, 'square', 0.09, -180), 48);
   }
   function sfxShot() { playTone(240, 0.11, 'sawtooth', 0.2, -180); }
   function sfxBoom() { playTone(90, 0.28, 'sawtooth', 0.24, -60); }
@@ -345,8 +355,8 @@
     [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.16, 'triangle', 0.14), i * 85));
   }
 
-  // Save Data (fresh key for Ultra-Troll v4 so Level 1 starts fresh!)
-  const STORAGE_KEY = 'bhd_ultratroll_v4';
+  // Save Data
+  const STORAGE_KEY = 'bhd_rage_v5';
   let save = {
     hat: 'none', glasses: 'round', shirt: '#2563eb', hair: '#5c361e',
     mode: 'normal', maxUnlocked: 1, selectedLevel: 1, totalDeaths: 0
@@ -386,8 +396,9 @@
     levelSlider.max = save.mode === 'challenge' ? 1 : save.maxUnlocked;
     const lvl = save.mode === 'challenge' ? 1 : Math.min(save.selectedLevel, save.maxUnlocked);
     levelSlider.value = lvl;
+    const tier = getDifficultyTier(lvl);
     selectedLevelLabel.textContent = `Start-Level: ${lvl} / ${MAX_LEVEL}`;
-    selectedBiomeLabel.textContent = getBiome(lvl).name + (lvl % 10 === 0 ? ' (Meilenstein)' : '');
+    selectedBiomeLabel.textContent = `${getBiome(lvl).name} · ${tier.label}`;
     unlockedLabel.textContent = `Freigeschaltet: ${save.maxUnlocked}/${MAX_LEVEL}`;
     totalDeathsLabel.textContent = `Gesamt-Tode: ${save.totalDeaths}`;
   }
@@ -420,6 +431,8 @@
   let stairVisuals = [];
   let grassTufts = [];
   let decoPines = [];
+  let ambientMotes = [];
+  let smokePuffs = [];
   let spawnPos = { x: 400, y: 1000 };
   let cabin = { x: 340, y: 120, w: 120, h: 85, runaway: false, ranAway: false, targetY: 120 };
 
@@ -433,8 +446,8 @@
     pushLogs: [],
     flowerBaits: [],
     fakeCheckpoints: [],
-    mushrooms: [],      // Control-inversion mushrooms!
-    cobbleTraps: [],    // Hidden pop-up spike/pine right on the cobblestone path!
+    mushrooms: [],
+    cobbleTraps: [],
     signs: []
   };
 
@@ -461,26 +474,33 @@
   function buildLevel(lvl) {
     currentLevel = lvl;
     currentBiome = getBiome(lvl);
-    const rng = createRng(lvl * 104729 + 7771);
-    const diff = (lvl - 1) / (MAX_LEVEL - 1);
+    const rng = createRng(lvl * 109397 + 5151);
+    // Exponential curve: genuinely easy at Level 1..10, brutal at 45..75, near-impossible at 80..100
+    const lin = (lvl - 1) / (MAX_LEVEL - 1);
+    const exp = Math.pow(lin, 1.35);
     const isBoss = (lvl % 10 === 0);
 
-    // Significantly harder baseline + steeper curve!
-    const pFallAccel = 6.2 + diff * 6.5;
-    const pSnapTime = Math.max(0.16, 0.38 - diff * 0.22); // very fast click-clack
-    const pCooldown = Math.max(0.48, 1.12 - diff * 0.64);
-    const pBulletSpd = 410 + diff * 270;
-    const pBurstCount = lvl >= 12 ? (lvl >= 55 ? 3 : 2) : 1;
-    const pChaserSpd = 148 + diff * 46; // player maxSpeed = 205 -> very tight!
-    const pLogSpd = 265 + diff * 195;
-    const pBaitSlam = Math.max(0.16, 0.30 - diff * 0.14);
+    const pFallAccel = 3.8 + exp * 10.5;                // 3.8 -> 14.3 rad/s^2
+    const pSnapTime = Math.max(0.13, 0.56 - exp * 0.43);// 0.56s -> 0.13s
+    const pCooldown = Math.max(0.38, 1.55 - exp * 1.17);// 1.55s -> 0.38s
+    const pBulletSpd = 310 + exp * 390;                 // 310 -> 700 px/s
+    const pBurstCount = lvl >= 75 ? 4 : (lvl >= 45 ? 3 : (lvl >= 15 ? 2 : 1));
+    const pChaserSpd = 115 + exp * 84;                  // 115 -> 199 px/s (player = 205!)
+    const pLogSpd = 185 + exp * 310;                    // 185 -> 495 px/s
+    const pBaitSlam = Math.max(0.14, 0.42 - exp * 0.28);// 0.42s -> 0.14s
 
-    // 5 segments already in Level 1 -> up to 12 in Level 100
-    let segCount = Math.min(11, 5 + Math.floor(lvl / 14));
+    // Segment count: 3 in L1..L5 (approachable) -> up to 12 in L100
+    let segCount = Math.min(11, 3 + Math.floor(lvl / 11));
     if (isBoss) segCount += 1;
     if (lvl === 100) segCount = 12;
 
-    const allKinds = ['doublefall', 'revolver', 'flowerbait', 'fork', 'chaser', 'stairslog', 'sniper', 'cobbletrap'];
+    // Progressive unlock of troll archetypes
+    const pool = ['doublefall', 'revolver', 'fork'];
+    if (lvl >= 4) pool.push('flowerbait');
+    if (lvl >= 7) pool.push('stairslog');
+    if (lvl >= 10) pool.push('chaser');
+    if (lvl >= 14) pool.push('sniper');
+    if (lvl >= 18) pool.push('cobbletrap');
 
     corridors = [];
     terraces = [];
@@ -494,9 +514,9 @@
       fakeCheckpoints: [], mushrooms: [], cobbleTraps: [], signs: []
     };
 
-    // Finish Terrace (extra tall so runaway cabin has room to flee upward!)
+    // Finish Terrace
     let curY = 340;
-    const hasRunawayCabin = (lvl === 1 || isBoss || rng() < 0.45);
+    const hasRunawayCabin = (lvl >= 5 && (isBoss || rng() < (0.25 + exp * 0.65)));
     corridors.push({ x: 200, y: 55, w: 400, h: 345 });
     terraces.push({ x: 140, y: 40, w: 520, h: 330, cliffH: 38 });
     cobblePaths.push({ x: 372, y: 120, w: 56, h: 250 });
@@ -505,10 +525,9 @@
       runaway: hasRunawayCabin, ranAway: false, targetY: 80
     };
     if (hasRunawayCabin) {
-      // Ambush revolver pine waiting next to the real cabin spot!
       entities.revolvers.push({
         x: 545, y: 145, side: -1, state: 'idle', timer: 0, flashT: 0,
-        aimX: 400, aimY: 160, cooldown: 0.2, baseCooldown: pCooldown,
+        aimX: 400, aimY: 160, cooldown: 0.25, baseCooldown: pCooldown,
         snapTime: pSnapTime, bulletSpd: pBulletSpd, burstLeft: 0, burstMax: pBurstCount
       });
     }
@@ -516,9 +535,9 @@
     for (let s = 0; s < segCount; s++) {
       let kind;
       if (lvl === 1) {
-        kind = ['fork', 'doublefall', 'revolver', 'cobbletrap', 'flowerbait'][s % 5];
+        kind = ['doublefall', 'revolver', 'fork'][s % 3];
       } else {
-        kind = allKinds[Math.floor(rng() * allKinds.length)];
+        kind = pool[Math.floor(rng() * pool.length)];
       }
 
       const segH = 420;
@@ -531,13 +550,10 @@
 
       if (kind === 'fork') {
         const trapRight = rng() > 0.5;
-        // UNPREDICTABLE SIGNS: 50% tell the TRUTH, 50% LIE, and some FLIP text when approached!
         const signLies = rng() > 0.5;
-        const signFlips = rng() < 0.35;
+        const signFlips = lvl >= 12 && rng() < (0.25 + exp * 0.45);
         const safeSideText = trapRight ? 'LINKS = SICHER' : 'RECHTS = SICHER';
         const trapSideText = trapRight ? 'RECHTS = SICHER' : 'LINKS = SICHER';
-        const initialText = signLies ? trapSideText : safeSideText;
-        const flipText = signLies ? safeSideText : trapSideText;
 
         corridors.push({ x: 155, y: topY - 40, w: 490, h: 110 });
         corridors.push({ x: 155, y: topY + 20, w: 170, h: segH - 40 });
@@ -549,11 +565,13 @@
         cobblePaths.push({ x: 215, y: topY + 12, w: 370, h: 46 });
 
         entities.forkAmbushes.push({
-          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 84 + diff * 16
+          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 80 + exp * 22
         });
         entities.signs.push({
-          x: 400, y: botY - 45, text: initialText,
-          flips: signFlips, flipped: false, altText: flipText
+          x: 400, y: botY - 45,
+          text: signLies ? trapSideText : safeSideText,
+          flips: signFlips, flipped: false,
+          altText: signLies ? safeSideText : trapSideText
         });
       } else if (kind === 'stairslog') {
         const alcoveLeft = rng() > 0.5;
@@ -563,7 +581,7 @@
         stairVisuals.push({ x: 325, y: topY + 55, w: 150, h: segH - 110 });
         entities.rollingLogs.push({
           x: 400, y: topY + 18, topY: topY + 18, botY: botY - 12,
-          w: 178, h: 30, speed: pLogSpd, active: false, cooldown: 0.25 + rng() * 0.25
+          w: 178, h: 30, speed: pLogSpd, active: false, cooldown: 0.35 + rng() * 0.25
         });
       } else {
         const w = kind === 'doublefall' ? 270 : 330;
@@ -574,18 +592,19 @@
         if (kind === 'doublefall') {
           const firstRight = rng() > 0.4;
           entities.fallPairs.push({
-            triggerY: midY + 80, triggered: false, secondDelay: 0.20,
+            triggerY: midY + 80, triggered: false,
+            secondDelay: Math.max(0.12, 0.32 - exp * 0.20),
             p1: {
               x: firstRight ? cx + w - 12 : cx + 12, y: midY + 45, dir: firstRight ? -1 : 1,
-              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 120
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 118
             },
             p2: {
               x: firstRight ? cx + 12 : cx + w - 12, y: midY - 40, dir: firstRight ? 1 : -1,
-              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel * 1.25, reach: 165
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel * 1.25, reach: 162
             }
           });
         } else if (kind === 'revolver') {
-          const count = 2 + (lvl >= 20 ? 1 : 0);
+          const count = lvl <= 6 ? 1 : (lvl >= 50 ? 3 : 2);
           for (let k = 0; k < count; k++) {
             const rightSide = (k % 2 === 0);
             entities.revolvers.push({
@@ -593,22 +612,19 @@
               y: topY + 85 + k * (250 / Math.max(1, count)),
               side: rightSide ? -1 : 1,
               state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
-              cooldown: 0.18 + k * 0.28, baseCooldown: pCooldown,
+              cooldown: 0.22 + k * 0.30, baseCooldown: pCooldown,
               snapTime: pSnapTime, bulletSpd: pBulletSpd,
               burstLeft: 0, burstMax: pBurstCount
             });
           }
         } else if (kind === 'cobbletrap') {
-          // Hidden spring-pines directly under the cobblestone path (punishes walking straight on the path!)
-          const count = 2 + (lvl >= 30 ? 1 : 0);
+          const count = 2 + (lvl >= 55 ? 1 : 0);
           for (let k = 0; k < count; k++) {
             entities.cobbleTraps.push({
               x: 400 + (k % 2 === 0 ? -12 : 12),
-              y: topY + 95 + k * 115,
-              r: 28, triggered: false, popT: 0
+              y: topY + 95 + k * 115, r: 28, triggered: false
             });
           }
-          // Truth or lie sign!
           const tellsTruth = rng() > 0.5;
           entities.signs.push({
             x: 310, y: botY - 45,
@@ -620,12 +636,13 @@
           entities.flowerBaits.push({
             x: 400 + (rng() - 0.5) * 90, y: midY,
             type: isAxe ? 'axe' : 'flower',
-            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 70 + diff * 14
+            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 66 + exp * 18
           });
-          // Control-inversion mushroom nearby!
-          entities.mushrooms.push({
-            x: 400 + (rng() > 0.5 ? 70 : -70), y: midY + 75, r: 16, used: false
-          });
+          if (lvl >= 20) {
+            entities.mushrooms.push({
+              x: 400 + (rng() > 0.5 ? 72 : -72), y: midY + 75, r: 16, used: false
+            });
+          }
         } else if (kind === 'chaser') {
           const rockY = topY + 125;
           entities.rocks.push({ x: 308, y: rockY, r: 46 });
@@ -642,25 +659,25 @@
           entities.revolvers.push({
             x: 400, y: topY + 42, side: 1,
             state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
-            cooldown: 0.25, baseCooldown: pCooldown * 0.82,
+            cooldown: 0.25, baseCooldown: pCooldown * 0.85,
             snapTime: pSnapTime, bulletSpd: pBulletSpd * 1.08,
             burstLeft: 0, burstMax: pBurstCount
           });
         }
       }
 
-      // Fake Green "CHECKPOINT" Flag in the middle of the level!
-      if (s === Math.floor(segCount / 2) && kind !== 'fork' && kind !== 'stairslog') {
+      // Fake Green Checkpoints starting at Level 8
+      if (lvl >= 8 && s === Math.floor(segCount / 2) && kind !== 'fork' && kind !== 'stairslog') {
         entities.fakeCheckpoints.push({
           x: 400 + (rng() > 0.5 ? 65 : -65), y: botY - 35,
           triggered: false, exploded: false, fuse: 0, maxFuse: pBaitSlam
         });
       }
 
-      for (let g = 0; g < 10; g++) {
-        const gx = 145 + rng() * 510;
-        const gy = topY + 25 + rng() * (segH - 50);
-        if (Math.abs(gx - 400) > 55) grassTufts.push({ x: gx, y: gy, blades: 3 + Math.floor(rng() * 3) });
+      for (let g = 0; g < 12; g++) {
+        const gx = 140 + rng() * 520;
+        const gy = topY + 22 + rng() * (segH - 44);
+        if (Math.abs(gx - 400) > 52) grassTufts.push({ x: gx, y: gy, blades: 3 + Math.floor(rng() * 3) });
       }
       curY = botY;
     }
@@ -679,9 +696,19 @@
         const jx = x + (rng() - 0.5) * 28;
         const jy = y + (rng() - 0.5) * 24;
         if (!isCircleWalkable(jx, jy, 44) && !isPointInCorridors(jx, jy)) {
-          decoPines.push({ x: jx, y: jy, scale: 0.88 + rng() * 0.3 });
+          decoPines.push({ x: jx, y: jy, scale: 0.88 + rng() * 0.3, phase: rng() * 6.28 });
         }
       }
+    }
+
+    // Ambient biome motes
+    ambientMotes = [];
+    for (let i = 0; i < 28; i++) {
+      ambientMotes.push({
+        x: Math.random() * 800, y: Math.random() * 800,
+        vx: -10 + Math.random() * 20, vy: 12 + Math.random() * 24,
+        r: 1.5 + Math.random() * 2.5, alpha: 0.25 + Math.random() * 0.45
+      });
     }
   }
 
@@ -694,6 +721,7 @@
   let deathLine = '';
   let deathPos = { x: 400, y: 400 };
   let confuseTimer = 0;
+  let smokeTimer = 0;
   let camera = { x: 400, y: 1000, shake: 0, zoom: 1 };
   let bullets = [];
   let particles = [];
@@ -708,8 +736,8 @@
     buildLevel(lvl);
     bullets = [];
     particles = [];
-    player.x = spawnPos.x;
-    player.y = spawnPos.y;
+    smokePuffs = [];
+    player.x = spawnPos.x; player.y = spawnPos.y;
     player.vx = 0; player.vy = 0;
     player.alive = true;
     player.ragdollRot = 0; player.ragdollSpin = 0;
@@ -725,8 +753,11 @@
     pauseOverlay.classList.add('hidden');
     levelWinOverlay.classList.add('hidden');
     hud.classList.remove('hidden');
+    const tier = getDifficultyTier(lvl);
+    tierBadge.textContent = tier.label;
+    tierBadge.style.background = tier.bg;
     updateRageHUD();
-    showToast(`Level ${lvl}/100 · ${currentBiome.name}`);
+    showToast(`Level ${lvl}/100 · ${currentBiome.name} (${tier.label})`);
   }
 
   function updateRageHUD() {
@@ -843,10 +874,7 @@
   document.getElementById('btnPause').onclick = () => { if (state === 'playing') openPause(); };
   document.getElementById('btnResume').onclick = closePause;
   document.getElementById('btnRestartLevel').onclick = () => { closePause(); startLevel(save.mode === 'challenge' ? 1 : currentLevel, false); };
-  document.getElementById('btnWaldTipp').onclick = () => {
-    closePause();
-    killPlayer('Netter Versuch. Wird nicht leichter.', 0, 1);
-  };
+  document.getElementById('btnWaldTipp').onclick = () => { closePause(); killPlayer('Netter Versuch. Wird nicht leichter.', 0, 1); };
   document.getElementById('btnToMenu').onclick = () => {
     state = 'menu'; pauseOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
@@ -874,6 +902,18 @@
   }
 
   function update(dt) {
+    // Cabin chimney smoke
+    smokeTimer -= dt;
+    if (smokeTimer <= 0) {
+      smokeTimer = 0.35;
+      smokePuffs.push({ x: cabin.x + cabin.w - 22, y: cabin.y - 12, r: 5, life: 1.4 });
+    }
+    for (let i = smokePuffs.length - 1; i >= 0; i--) {
+      const sp = smokePuffs[i];
+      sp.y -= 24 * dt; sp.x += 8 * dt; sp.r += 7 * dt; sp.life -= dt;
+      if (sp.life <= 0) smokePuffs.splice(i, 1);
+    }
+
     if (hitStop > 0) { hitStop -= dt; return; }
     if (camera.shake > 0) camera.shake = Math.max(0, camera.shake - dt * 36);
     camera.zoom += (1 - camera.zoom) * Math.min(1, 5 * dt);
@@ -912,8 +952,6 @@
     if (keys['ArrowDown'] || keys['KeyS']) iy += 1;
     const ilen = Math.hypot(ix, iy);
     if (ilen > 1) { ix /= ilen; iy /= ilen; }
-
-    // Control inversion when confused by mushroom!
     if (confuseTimer > 0) { ix = -ix; iy = -iy; }
 
     const maxSpeed = 205;
@@ -927,16 +965,12 @@
     if (isCircleWalkable(nx, player.y, player.r)) player.x = nx; else player.vx = 0;
     if (isCircleWalkable(player.x, ny, player.r)) player.y = ny; else player.vy = 0;
 
-    // Flipping signs when player gets close!
     for (const sg of entities.signs) {
       if (sg.flips && !sg.flipped && Math.hypot(player.x - sg.x, player.y - sg.y) < 115) {
-        sg.flipped = true;
-        sg.text = sg.altText;
-        sfxTroll();
+        sg.flipped = true; sg.text = sg.altText; sfxTroll();
       }
     }
 
-    // 1. Double-Fakeout Falling Pairs
     for (const pair of entities.fallPairs) {
       if (!pair.triggered && player.y < pair.triggerY) {
         pair.triggered = true; pair.p1.falling = true; sfxClickClack();
@@ -961,7 +995,6 @@
       }
     }
 
-    // 2. Revolver Pines with Burst Fire
     for (const rv of entities.revolvers) {
       if (rv.flashT > 0) rv.flashT -= dt;
       if (Math.abs(player.y - rv.y) < 320) {
@@ -974,8 +1007,11 @@
         } else if (rv.state === 'snap') {
           rv.timer -= dt;
           if (rv.timer <= 0) {
-            // Slight lead aim on burst shots
-            const ang = Math.atan2(player.y - rv.y, player.x - rv.x);
+            // Predictive lead aim in Rage Mode (Level >= 65)
+            const lead = currentLevel >= 65 ? 0.14 : 0;
+            const tx = player.x + player.vx * lead;
+            const ty = player.y + player.vy * lead;
+            const ang = Math.atan2(ty - rv.y, tx - rv.x);
             bullets.push({
               x: rv.x + Math.cos(ang) * 26, y: rv.y - 24 + Math.sin(ang) * 10,
               vx: Math.cos(ang) * rv.bulletSpd, vy: Math.sin(ang) * rv.bulletSpd,
@@ -983,17 +1019,13 @@
             });
             rv.flashT = 0.07; sfxShot();
             rv.burstLeft--;
-            if (rv.burstLeft > 0) {
-              rv.timer = 0.14; // rapid burst
-            } else {
-              rv.state = 'idle'; rv.cooldown = rv.baseCooldown;
-            }
+            if (rv.burstLeft > 0) rv.timer = 0.13;
+            else { rv.state = 'idle'; rv.cooldown = rv.baseCooldown; }
           }
         }
       }
     }
 
-    // 3. Fork Ambushes
     for (const fa of entities.forkAmbushes) {
       if (!fa.triggered && Math.hypot(player.x - fa.x, player.y - fa.y) < 105) {
         fa.triggered = true; fa.active = true; sfxBoom();
@@ -1006,7 +1038,6 @@
       }
     }
 
-    // 4. Rocks & Chasers
     for (const rk of entities.rocks) {
       const res = resolveCircleObstacle(player.x, player.y, player.r, rk.x, rk.y, rk.r);
       if (isCircleWalkable(res.x, res.y, player.r)) { player.x = res.x; player.y = res.y; }
@@ -1027,7 +1058,6 @@
       }
     }
 
-    // 5. Rolling Logs
     for (const rl of entities.rollingLogs) {
       if (player.y < rl.botY + 70 && player.y > rl.topY - 50) {
         if (!rl.active) {
@@ -1038,12 +1068,11 @@
           if (circleRectHit(player.x, player.y, player.r, rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h)) {
             killPlayer('Treppen sind kein sicherer Ort.', 0, 1);
           }
-          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.32, 0.78 - (currentLevel / 200)); }
+          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.28, 0.85 - (currentLevel / 170)); }
         }
       }
     }
 
-    // 6. Pushable Cover Logs
     for (const pl of entities.pushLogs) {
       if (circleRectHit(player.x, player.y, player.r, pl.x, pl.y, pl.w, pl.h)) {
         const pushY = player.y > pl.y + pl.h / 2 ? -1 : 1;
@@ -1057,7 +1086,6 @@
       }
     }
 
-    // 7. Cobblestone Hidden Traps
     for (const ct of entities.cobbleTraps) {
       if (!ct.triggered && Math.hypot(player.x - ct.x, player.y - ct.y) < ct.r + player.r - 4) {
         ct.triggered = true; sfxBoom();
@@ -1065,7 +1093,6 @@
       }
     }
 
-    // 8. Flower & Axe Baits
     for (const fb of entities.flowerBaits) {
       if (!fb.triggered && Math.hypot(player.x - fb.x, player.y - fb.y) < 48) {
         fb.triggered = true; fb.handActive = true; fb.slamT = fb.maxSlam; sfxClickClack();
@@ -1081,23 +1108,17 @@
       }
     }
 
-    // 9. Control-Inversion Mushrooms
     for (const m of entities.mushrooms) {
       if (!m.used && Math.hypot(player.x - m.x, player.y - m.y) < m.r + player.r) {
-        m.used = true;
-        confuseTimer = 2.8;
-        confuseBadge.classList.remove('hidden');
-        sfxTroll();
-        showToast('Pilz erwischt: Steuerung 2,8s verdreht!');
+        m.used = true; confuseTimer = 2.8; confuseBadge.classList.remove('hidden');
+        sfxTroll(); showToast('Pilz erwischt: Steuerung 2,8s verdreht!');
       }
     }
 
-    // 10. Fake Checkpoints
     for (const fc of entities.fakeCheckpoints) {
       if (fc.exploded) continue;
       if (!fc.triggered && Math.hypot(player.x - fc.x, player.y - fc.y) < 42) {
-        fc.triggered = true; fc.fuse = fc.maxFuse; sfxTroll();
-        showToast('CHECKPOINT! (Kleiner Scherz)');
+        fc.triggered = true; fc.fuse = fc.maxFuse; sfxTroll(); showToast('CHECKPOINT! (Kleiner Scherz)');
       }
       if (fc.triggered) {
         fc.fuse -= dt;
@@ -1107,24 +1128,18 @@
             const a = Math.random() * Math.PI * 2;
             particles.push({ x: fc.x, y: fc.y, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, life: 0.45, color: '#22c55e', size: 6 });
           }
-          if (Math.hypot(player.x - fc.x, player.y - fc.y) < 74) {
-            killPlayer('Fake-Checkpoint. Klassiker.', 0, 1);
-          }
+          if (Math.hypot(player.x - fc.x, player.y - fc.y) < 74) killPlayer('Fake-Checkpoint. Klassiker.', 0, 1);
         }
       }
     }
 
-    // 11. Runaway Cabin!
     if (cabin.runaway && !cabin.ranAway && Math.hypot(player.x - (cabin.x + cabin.w / 2), player.y - (cabin.y + cabin.h)) < 85) {
-      cabin.ranAway = true;
-      sfxTroll();
-      showToast('Die Hütte haut ab!');
+      cabin.ranAway = true; sfxTroll(); showToast('Die Hütte haut ab!');
     }
     if (cabin.ranAway && cabin.y > cabin.targetY) {
       cabin.y = Math.max(cabin.targetY, cabin.y - 340 * dt);
     }
 
-    // Bullets
     for (let i = bullets.length - 1; i >= 0; i--) {
       const b = bullets[i]; b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
       let blocked = false;
@@ -1133,17 +1148,13 @@
       }
       if (blocked) { bullets.splice(i, 1); continue; }
       if (Math.hypot(player.x - b.x, player.y - b.y) < player.r + b.r) {
-        bullets.splice(i, 1);
-        killPlayer('Eine Tanne mit Revolver. Natürlich.', b.vx, b.vy);
-        continue;
+        bullets.splice(i, 1); killPlayer('Eine Tanne mit Revolver. Natürlich.', b.vx, b.vy); continue;
       }
       if (b.life <= 0) bullets.splice(i, 1);
     }
 
-    // Real Cabin Finish (only after runaway finished!)
     if ((!cabin.runaway || cabin.y <= cabin.targetY + 5) && circleRectHit(player.x, player.y, player.r, cabin.x, cabin.y + 35, cabin.w, cabin.h - 15)) {
-      state = 'levelwin';
-      sfxWin();
+      state = 'levelwin'; sfxWin();
       if (currentLevel < MAX_LEVEL && currentLevel + 1 > save.maxUnlocked) save.maxUnlocked = currentLevel + 1;
       save.selectedLevel = Math.min(MAX_LEVEL, currentLevel + 1);
       persistSave();
@@ -1160,26 +1171,29 @@
     hudBiome.textContent = currentBiome.name;
   }
 
-  // Drawing Helpers (2.5D Diorama)
-  function drawLowPolyPine(c, x, y, scale = 1, angle = 0, showGun = false, gunSide = -1, flash = false) {
+  // Polished 2.5D Diorama Drawing Helpers
+  function drawLowPolyPine(c, x, y, scale = 1, angle = 0, showGun = false, gunSide = -1, flash = false, sway = 0) {
     c.save(); c.translate(x, y); c.scale(scale, scale);
-    c.fillStyle = 'rgba(0, 0, 0, 0.24)';
-    c.beginPath(); c.ellipse(-18, -4, 34, 14, -0.35, 0, Math.PI * 2); c.fill();
-    c.rotate(angle);
+    c.fillStyle = 'rgba(0, 0, 0, 0.27)';
+    c.beginPath(); c.ellipse(-18, -3, 35, 14, -0.35, 0, Math.PI * 2); c.fill();
+    c.rotate(angle + sway);
     c.fillStyle = '#5c3a1e'; c.fillRect(-7, -14, 14, 18);
-    const p1 = currentBiome.pine; const p2 = currentBiome.pineDark;
-    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -56); c.lineTo(-32, -10); c.lineTo(32, -10); c.closePath(); c.fill();
-    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(32, -10); c.closePath(); c.fill();
-    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -76); c.lineTo(-26, -34); c.lineTo(26, -34); c.closePath(); c.fill();
-    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(26, -34); c.closePath(); c.fill();
-    c.fillStyle = '#73e827'; c.beginPath(); c.moveTo(0, -96); c.lineTo(-17, -56); c.lineTo(17, -56); c.closePath(); c.fill();
-    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(17, -56); c.closePath(); c.fill();
+    const p1 = currentBiome.pine; const p2 = currentBiome.pineDark; const p3 = currentBiome.pineTip;
+    // Bottom tier
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -56); c.lineTo(-33, -10); c.lineTo(33, -10); c.closePath(); c.fill();
+    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(33, -10); c.closePath(); c.fill();
+    // Middle tier
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -76); c.lineTo(-27, -34); c.lineTo(27, -34); c.closePath(); c.fill();
+    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(27, -34); c.closePath(); c.fill();
+    // Top tip with sunlit left facet
+    c.fillStyle = p3; c.beginPath(); c.moveTo(0, -96); c.lineTo(-18, -56); c.lineTo(18, -56); c.closePath(); c.fill();
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(18, -56); c.closePath(); c.fill();
     if (showGun) {
       c.save(); c.translate(gunSide * 20, -36); c.scale(gunSide, 1);
       c.fillStyle = '#8d5524'; c.fillRect(-4, 2, 7, 12);
       c.fillStyle = '#6c757d'; c.strokeStyle = '#222'; c.lineWidth = 1.5;
       c.fillRect(-2, -4, 24, 8); c.strokeRect(-2, -4, 24, 8);
-      if (flash) { c.fillStyle = '#fff066'; c.beginPath(); c.arc(26, 0, 10, 0, Math.PI * 2); c.fill(); }
+      if (flash) { c.fillStyle = '#fff066'; c.beginPath(); c.arc(26, 0, 11, 0, Math.PI * 2); c.fill(); }
       c.restore();
     }
     c.restore();
@@ -1187,7 +1201,7 @@
 
   function drawGlassesShape(c, x, y) {
     c.save(); c.translate(x, y); c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
-    c.fillStyle = save.glasses === 'shades' ? '#111' : 'rgba(230,248,255,0.85)';
+    c.fillStyle = save.glasses === 'shades' ? '#111' : 'rgba(230,248,255,0.88)';
     if (save.glasses === 'round') {
       c.beginPath(); c.arc(-4.2, 0, 3.5, 0, Math.PI * 2); c.fill(); c.stroke();
       c.beginPath(); c.arc(4.2, 0, 3.5, 0, Math.PI * 2); c.fill(); c.stroke();
@@ -1200,7 +1214,7 @@
 
   function drawChibiCharacter(c, x, y, walkCycle, alive, rot, scale = 1) {
     c.save(); c.translate(x, y); c.scale(scale, scale);
-    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(-7, 5, 14, 6, -0.3, 0, Math.PI * 2); c.fill();
+    c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(-7, 5, 14, 6, -0.3, 0, Math.PI * 2); c.fill();
     if (!alive) c.rotate(rot);
     const bob = alive ? Math.sin(walkCycle) * 2.5 : 0;
     c.fillStyle = '#b8b83d'; c.fillRect(-6, -2 + bob * 0.5, 5, 11); c.fillRect(1, -2 - bob * 0.5, 5, 11);
@@ -1231,29 +1245,38 @@
 
   function drawCobbleRect(x, y, w, h) {
     ctx.fillStyle = currentBiome.stone; ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = 'rgba(40,44,48,0.45)'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(30,34,38,0.48)'; ctx.lineWidth = 1.5;
     for (let sy = y; sy < y + h; sy += 18) {
       ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(x + w, sy); ctx.stroke();
       const off = ((Math.floor(sy / 18) % 2) * 14);
       for (let sx = x + off; sx < x + w; sx += 24) {
         ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, Math.min(y + h, sy + 18)); ctx.stroke();
+        // Subtle sunlit top bevel on stone
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.fillRect(sx + 2, sy + 2, 18, 3);
       }
     }
   }
 
   function drawStairs(x, y, w, h) {
+    // Drop shadow beside stairs
+    ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(x - 10, y + 4, w + 14, h + 4);
     ctx.fillStyle = '#8c6239'; ctx.fillRect(x, y, w, h);
     ctx.fillStyle = '#6e4a28';
-    for (let sy = y + 8; sy < y + h; sy += 13) ctx.fillRect(x + 4, sy, w - 8, 4);
-    ctx.fillStyle = '#9ea4ab'; ctx.strokeStyle = '#555b61'; ctx.lineWidth = 2;
+    for (let sy = y + 8; sy < y + h; sy += 13) {
+      ctx.fillRect(x + 4, sy, w - 8, 4);
+      ctx.fillStyle = 'rgba(255,235,200,0.16)'; ctx.fillRect(x + 4, sy - 3, w - 8, 2);
+      ctx.fillStyle = '#6e4a28';
+    }
+    ctx.fillStyle = '#a3aab2'; ctx.strokeStyle = '#4e545c'; ctx.lineWidth = 2;
     ctx.fillRect(x - 4, y - 3, 9, h + 6); ctx.strokeRect(x - 4, y - 3, 9, h + 6);
     ctx.fillRect(x + w - 5, y - 3, 9, h + 6); ctx.strokeRect(x + w - 5, y - 3, 9, h + 6);
   }
 
   function drawLowPolyRock(x, y, r) {
     ctx.save(); ctx.translate(x, y);
-    ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.beginPath(); ctx.ellipse(-8, 6, r * 1.05, r * 0.72, -0.2, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#c2bcb2';
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.ellipse(-8, 6, r * 1.05, r * 0.72, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c8c2b8';
     ctx.beginPath(); ctx.moveTo(-r * 0.85, r * 0.35); ctx.lineTo(-r * 0.55, -r * 0.75);
     ctx.lineTo(r * 0.35, -r * 0.9); ctx.lineTo(r * 0.92, -r * 0.1);
     ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85); ctx.closePath(); ctx.fill();
@@ -1299,12 +1322,20 @@
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-camera.x, -camera.y);
 
+    // 1. Terraces with Ambient Occlusion cliff shadows
     for (const tr of terraces) {
+      // AO shadow below cliff
+      ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      ctx.fillRect(tr.x - 8, tr.y + tr.h + tr.cliffH - 2, tr.w + 16, 14);
+      // Cliff front wall
       ctx.fillStyle = currentBiome.cliff; ctx.fillRect(tr.x, tr.y + tr.h - 6, tr.w, tr.cliffH + 6);
       ctx.fillStyle = currentBiome.cliffDark;
       for (let fx = tr.x + 35; fx < tr.x + tr.w - 20; fx += 75) ctx.fillRect(fx, tr.y + tr.h - 4, 24, tr.cliffH + 4);
+      // Grass plateau
       ctx.fillStyle = currentBiome.grass; ctx.fillRect(tr.x, tr.y, tr.w, tr.h);
-      ctx.fillStyle = currentBiome.grassHi; ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 10);
+      ctx.fillStyle = currentBiome.grassHi; ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 12);
+      // Lip highlight above cliff
+      ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fillRect(tr.x, tr.y + tr.h - 8, tr.w, 4);
     }
 
     for (const cp of cobblePaths) drawCobbleRect(cp.x, cp.y, cp.w, cp.h);
@@ -1318,7 +1349,6 @@
       }
     }
 
-    // Subtle hairline crack on cobblestone traps (barely noticeable!)
     for (const ct of entities.cobbleTraps) {
       ctx.strokeStyle = ct.triggered ? '#ff4d4d' : 'rgba(20,20,20,0.28)';
       ctx.lineWidth = ct.triggered ? 3 : 1.2;
@@ -1347,7 +1377,6 @@
       }
     }
 
-    // Glowing Control-Inversion Mushrooms
     for (const m of entities.mushrooms) {
       if (m.used) continue;
       ctx.fillStyle = '#f5f0e1'; ctx.fillRect(m.x - 4, m.y - 4, 8, 12);
@@ -1355,7 +1384,6 @@
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(m.x - 4, m.y - 9, 2.2, 0, Math.PI * 2); ctx.arc(m.x + 4, m.y - 8, 2, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Fake Green Checkpoints
     for (const fc of entities.fakeCheckpoints) {
       if (fc.exploded) continue;
       ctx.fillStyle = '#d1d5db'; ctx.fillRect(fc.x - 2, fc.y - 34, 4, 36);
@@ -1364,8 +1392,12 @@
     }
 
     const drawables = [];
+    const windT = now * 0.002;
     for (const t of decoPines) {
-      if (Math.abs(t.y - camera.y) < h * 0.85) drawables.push({ y: t.y, fn: () => drawLowPolyPine(ctx, t.x, t.y, t.scale, 0) });
+      if (Math.abs(t.y - camera.y) < h * 0.85) {
+        const sw = Math.sin(windT + t.phase) * 0.03;
+        drawables.push({ y: t.y, fn: () => drawLowPolyPine(ctx, t.x, t.y, t.scale, 0, false, -1, false, sw) });
+      }
     }
     for (const pair of entities.fallPairs) {
       drawables.push({ y: pair.p1.y, fn: () => drawLowPolyPine(ctx, pair.p1.x, pair.p1.y, 1.12, pair.p1.dir * pair.p1.angle) });
@@ -1400,15 +1432,29 @@
         }
       });
     }
+
+    // Cabin with chimney, planks, warm window & animated smoke
     drawables.push({
       y: cabin.y + cabin.h, fn: () => {
+        ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(cabin.x - 10, cabin.y + 32, cabin.w + 14, cabin.h - 22);
+        // Chimney
+        ctx.fillStyle = '#6e5244'; ctx.fillRect(cabin.x + cabin.w - 30, cabin.y - 16, 16, 26);
+        // Smoke
+        for (const sp of smokePuffs) {
+          ctx.fillStyle = `rgba(240,240,240,${Math.max(0, sp.life * 0.45)})`;
+          ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2); ctx.fill();
+        }
+        // Walls
         ctx.fillStyle = '#8b5a2b'; ctx.strokeStyle = '#2b180a'; ctx.lineWidth = 3.5;
         ctx.fillRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25); ctx.strokeRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
-        ctx.fillStyle = currentLevel === MAX_LEVEL ? '#eab308' : '#a63429';
+        // Roof
+        ctx.fillStyle = currentLevel === MAX_LEVEL ? '#eab308' : '#b3382c';
         ctx.beginPath(); ctx.moveTo(cabin.x - 14, cabin.y + 28); ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
         ctx.lineTo(cabin.x + cabin.w + 14, cabin.y + 28); ctx.closePath(); ctx.fill(); ctx.stroke();
+        // Door & Warm Window
         ctx.fillStyle = '#f7e479';
         ctx.fillRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38); ctx.strokeRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
+        ctx.fillStyle = '#fde047'; ctx.fillRect(cabin.x + 14, cabin.y + 42, 18, 16); ctx.strokeRect(cabin.x + 14, cabin.y + 42, 18, 16);
       }
     });
 
@@ -1438,6 +1484,23 @@
       ctx.restore();
     }
 
+    ctx.restore();
+
+    // Screen-space Ambient Particles & Soft Sunlight Vignette
+    ctx.save();
+    for (const m of ambientMotes) {
+      m.x = (m.x + m.vx * 0.016 + w) % w;
+      m.y = (m.y + m.vy * 0.016 + h) % h;
+      ctx.globalAlpha = m.alpha;
+      ctx.fillStyle = currentBiome.amb;
+      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    const vig = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.78);
+    vig.addColorStop(0, 'rgba(255,255,220,0.03)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.32)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, w, h);
     ctx.restore();
 
     if (joy.active && state === 'playing') {
