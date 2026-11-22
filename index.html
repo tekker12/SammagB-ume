@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Bäume hassen dich – Troll-Edition</title>
+  <title>Bäume hassen dich – Ultra-Troll</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
@@ -22,7 +22,7 @@
     .overlay {
       position: fixed; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; padding: 12px;
-      background: rgba(18, 28, 12, 0.86); backdrop-filter: blur(5px); z-index: 20;
+      background: rgba(18, 28, 12, 0.88); backdrop-filter: blur(5px); z-index: 20;
       overflow-y: auto;
     }
     .hidden { display: none !important; }
@@ -97,14 +97,18 @@
       pointer-events: none; z-index: 10;
     }
     .hud-pill {
-      background: rgba(24, 36, 17, 0.86); border: 2px solid #6b963b;
-      border-radius: 10px; padding: 6px 10px; font-size: 0.79rem; font-weight: 700;
+      background: rgba(24, 36, 17, 0.88); border: 2px solid #6b963b;
+      border-radius: 10px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700;
       line-height: 1.35; color: #f6f4eb;
     }
     .hud-sub { display: block; font-size: 0.72rem; color: #f7e479; font-weight: 700; }
     .rage-badge {
       display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px;
       background: #3b5923; color: #fff; font-size: 0.7rem;
+    }
+    .confuse-badge {
+      display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px;
+      background: #9333ea; color: #fff; font-size: 0.7rem;
     }
     .hud-actions { display: flex; gap: 8px; pointer-events: auto; }
     .icon-btn {
@@ -132,7 +136,11 @@
 <div id="hud" class="hidden">
   <div class="hud-pill">
     <span id="hudMain">Level 1/100 · 00:00.0 · Tode: 0</span>
-    <span class="hud-sub"><span id="hudBiome">Sonnenterrasse</span><span class="rage-badge" id="rageBadge">Ärger: Ruhig</span></span>
+    <span class="hud-sub">
+      <span id="hudBiome">Sonnenterrasse</span>
+      <span class="rage-badge" id="rageBadge">Ärger: Ruhig</span>
+      <span class="confuse-badge hidden" id="confuseBadge">STEUERUNG VERDREHT</span>
+    </span>
   </div>
   <div class="hud-actions">
     <button class="icon-btn" id="btnRestart" title="Neustart (R)">↻</button>
@@ -146,7 +154,7 @@
 <div id="menuOverlay" class="overlay">
   <div class="card">
     <h1>BÄUME HASSEN DICH</h1>
-    <p class="sub">2.5D-Diorama · Troll-Edition · 100 Level</p>
+    <p class="sub">Ultra-Troll Edition · 100 Level · Kein Mitleid</p>
 
     <div class="preview-wrap">
       <canvas id="charPreview" width="156" height="168"></canvas>
@@ -220,10 +228,10 @@
 <div id="pauseOverlay" class="overlay hidden">
   <div class="card">
     <h1>PAUSE</h1>
-    <p class="sub" id="pauseSub">Level 1 · Alles völlig harmlos hier.</p>
+    <p class="sub" id="pauseSub">Level 1 · Hier passiert garantiert nichts.</p>
     <button class="btn-primary" id="btnResume">Weiterspielen</button>
     <button class="btn-sec" id="btnRestartLevel">Level neu starten</button>
-    <button class="btn-tip" id="btnWaldTipp">Wald-Tipp anzeigen</button>
+    <button class="btn-tip" id="btnWaldTipp">Schwierigkeit senken</button>
     <button class="btn-sec" id="btnToMenu">Zum Hauptmenü</button>
   </div>
 </div>
@@ -258,6 +266,7 @@
   const hudMain = document.getElementById('hudMain');
   const hudBiome = document.getElementById('hudBiome');
   const rageBadge = document.getElementById('rageBadge');
+  const confuseBadge = document.getElementById('confuseBadge');
   const toastEl = document.getElementById('toast');
   const menuOverlay = document.getElementById('menuOverlay');
   const pauseOverlay = document.getElementById('pauseOverlay');
@@ -279,7 +288,6 @@
   const unlockedLabel = document.getElementById('unlockedLabel');
   const totalDeathsLabel = document.getElementById('totalDeathsLabel');
 
-  // 10 Diorama Biomes (starting with exact screenshot palette!)
   const BIOMES = [
     { name: 'Sonnenterrasse',     grass: '#4ea314', grassHi: '#5db81d', cliff: '#b9956f', cliffDark: '#8c6b49', stone: '#8d9299', pine: '#52c41a', pineDark: '#368a0c', ice: false },
     { name: 'Herbst-Terrasse',    grass: '#8a7a1c', grassHi: '#a18f22', cliff: '#a87d56', cliffDark: '#7a5738', stone: '#8d8b86', pine: '#c95e1a', pineDark: '#963f0b', ice: false },
@@ -296,19 +304,6 @@
   function getBiome(lvl) {
     return BIOMES[Math.min(BIOMES.length - 1, Math.floor((lvl - 1) / 10))];
   }
-
-  const SARCASTIC_LINES = [
-    'Vertrauen ist gut. Baum ist besser.',
-    'Der sah doch wirklich ganz nett aus.',
-    'Tja. Brille schon wieder weg.',
-    'Ein ganz normaler Spaziergang.',
-    'Schilder lügen im Wald grundsätzlich.',
-    'Knapp vorbei ist auch erschlagen.',
-    'Die Tanne hatte einen schlechten Tag.',
-    'Warum gehst du auch einfach weiter?',
-    'Die lila Blume wollte das auch nicht.',
-    'Nächstes Mal einfach nicht atmen.'
-  ];
 
   // Audio Synthesizer
   let audioCtx = null;
@@ -341,16 +336,17 @@
   }
   function sfxClickClack() {
     playTone(760, 0.04, 'square', 0.09, -240);
-    setTimeout(() => playTone(980, 0.045, 'square', 0.09, -180), 55);
+    setTimeout(() => playTone(980, 0.045, 'square', 0.09, -180), 50);
   }
-  function sfxShot() { playTone(240, 0.12, 'sawtooth', 0.2, -180); }
+  function sfxShot() { playTone(240, 0.11, 'sawtooth', 0.2, -180); }
   function sfxBoom() { playTone(90, 0.28, 'sawtooth', 0.24, -60); }
+  function sfxTroll() { playTone(420, 0.12, 'triangle', 0.14, 340); }
   function sfxWin() {
     [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.16, 'triangle', 0.14), i * 85));
   }
 
-  // Save Data
-  const STORAGE_KEY = 'bhd_troll_v3';
+  // Save Data (fresh key for Ultra-Troll v4 so Level 1 starts fresh!)
+  const STORAGE_KEY = 'bhd_ultratroll_v4';
   let save = {
     hat: 'none', glasses: 'round', shirt: '#2563eb', hair: '#5c361e',
     mode: 'normal', maxUnlocked: 1, selectedLevel: 1, totalDeaths: 0
@@ -377,7 +373,8 @@
     if (deaths <= 2) return { label: 'Ärger: Skeptisch', bg: '#6b6e1d' };
     if (deaths <= 5) return { label: 'Ärger: Genervt', bg: '#a6631b' };
     if (deaths <= 9) return { label: 'Ärger: Salzig', bg: '#b83b24' };
-    return { label: 'Ärger: Baum-Trauma', bg: '#8f1735' };
+    if (deaths <= 15) return { label: 'Ärger: Baum-Trauma', bg: '#8f1735' };
+    return { label: 'Ärger: Tastatur in Gefahr', bg: '#5c0b1e' };
   }
   function syncMenuUI() {
     optHat.value = save.hat;
@@ -417,25 +414,27 @@
   // World Geometry & Entities
   let currentLevel = 1;
   let currentBiome = BIOMES[0];
-  let corridors = [];      // Walkable union rects
-  let terraces = [];       // Visual terraced grass plateaus with cliff walls
-  let cobblePaths = [];    // Gray cobblestone strips
-  let stairVisuals = [];   // Wooden stairs with gray handrails
+  let corridors = [];
+  let terraces = [];
+  let cobblePaths = [];
+  let stairVisuals = [];
   let grassTufts = [];
   let decoPines = [];
   let spawnPos = { x: 400, y: 1000 };
-  let cabin = { x: 340, y: 85, w: 120, h: 85 };
+  let cabin = { x: 340, y: 120, w: 120, h: 85, runaway: false, ranAway: false, targetY: 120 };
 
   let entities = {
-    fallPairs: [],    // Double-fakeout falling pine pairs
-    revolvers: [],    // 100% disguised revolver pines (no laser line!)
-    forkAmbushes: [], // Lying fork trap
-    chasers: [],      // Rear chaser pine + rocks
+    fallPairs: [],
+    revolvers: [],
+    forkAmbushes: [],
+    chasers: [],
     rocks: [],
     rollingLogs: [],
     pushLogs: [],
-    flowerBaits: [],  // Purple flower / axe bait -> hand or spring pine
-    fakeFlags: [],    // Fake finish flag before real cabin
+    flowerBaits: [],
+    fakeCheckpoints: [],
+    mushrooms: [],      // Control-inversion mushrooms!
+    cobbleTraps: [],    // Hidden pop-up spike/pine right on the cobblestone path!
     signs: []
   };
 
@@ -462,25 +461,26 @@
   function buildLevel(lvl) {
     currentLevel = lvl;
     currentBiome = getBiome(lvl);
-    const rng = createRng(lvl * 9137 + 4242);
+    const rng = createRng(lvl * 104729 + 7771);
     const diff = (lvl - 1) / (MAX_LEVEL - 1);
     const isBoss = (lvl % 10 === 0);
 
-    // Escalating speeds & tighter troll timings
-    const pFallAccel = 4.6 + diff * 5.0;
-    const pSnapTime = Math.max(0.24, 0.50 - diff * 0.26); // short click-clack before shot (no laser!)
-    const pCooldown = Math.max(0.68, 1.45 - diff * 0.77);
-    const pBulletSpd = 350 + diff * 250;
-    const pChaserSpd = 128 + diff * 54;
-    const pLogSpd = 215 + diff * 185;
-    const pBaitSlam = Math.max(0.20, 0.40 - diff * 0.20);
+    // Significantly harder baseline + steeper curve!
+    const pFallAccel = 6.2 + diff * 6.5;
+    const pSnapTime = Math.max(0.16, 0.38 - diff * 0.22); // very fast click-clack
+    const pCooldown = Math.max(0.48, 1.12 - diff * 0.64);
+    const pBulletSpd = 410 + diff * 270;
+    const pBurstCount = lvl >= 12 ? (lvl >= 55 ? 3 : 2) : 1;
+    const pChaserSpd = 148 + diff * 46; // player maxSpeed = 205 -> very tight!
+    const pLogSpd = 265 + diff * 195;
+    const pBaitSlam = Math.max(0.16, 0.30 - diff * 0.14);
 
-    // Action-packed right from Level 1 (4 segments in L1 -> up to 10 in L100)
-    let segCount = Math.min(9, 4 + Math.floor(lvl / 16));
+    // 5 segments already in Level 1 -> up to 12 in Level 100
+    let segCount = Math.min(11, 5 + Math.floor(lvl / 14));
     if (isBoss) segCount += 1;
-    if (lvl === 100) segCount = 10;
+    if (lvl === 100) segCount = 12;
 
-    const allKinds = ['doublefall', 'revolver', 'flowerbait', 'fork', 'chaser', 'stairslog', 'sniper'];
+    const allKinds = ['doublefall', 'revolver', 'flowerbait', 'fork', 'chaser', 'stairslog', 'sniper', 'cobbletrap'];
 
     corridors = [];
     terraces = [];
@@ -491,28 +491,32 @@
     entities = {
       fallPairs: [], revolvers: [], forkAmbushes: [], chasers: [],
       rocks: [], rollingLogs: [], pushLogs: [], flowerBaits: [],
-      fakeFlags: [], signs: []
+      fakeCheckpoints: [], mushrooms: [], cobbleTraps: [], signs: []
     };
 
-    // Finish Terrace (Top)
-    let curY = 260;
-    corridors.push({ x: 200, y: 65, w: 400, h: 255 });
-    terraces.push({ x: 140, y: 50, w: 520, h: 240, cliffH: 38 });
-    cobblePaths.push({ x: 372, y: 165, w: 56, h: 155 });
-    cabin = { x: 340, y: 82, w: 120, h: 85 };
-
-    // Fake Finish Flag right below real cabin on Level 1, Boss levels, and 45% of levels
-    if (lvl === 1 || isBoss || rng() < 0.45) {
-      entities.fakeFlags.push({
-        x: 400, y: 235, triggered: false, active: false, fuse: 0, maxFuse: pBaitSlam + 0.08, exploded: false
+    // Finish Terrace (extra tall so runaway cabin has room to flee upward!)
+    let curY = 340;
+    const hasRunawayCabin = (lvl === 1 || isBoss || rng() < 0.45);
+    corridors.push({ x: 200, y: 55, w: 400, h: 345 });
+    terraces.push({ x: 140, y: 40, w: 520, h: 330, cliffH: 38 });
+    cobblePaths.push({ x: 372, y: 120, w: 56, h: 250 });
+    cabin = {
+      x: 340, y: hasRunawayCabin ? 215 : 85, w: 120, h: 85,
+      runaway: hasRunawayCabin, ranAway: false, targetY: 80
+    };
+    if (hasRunawayCabin) {
+      // Ambush revolver pine waiting next to the real cabin spot!
+      entities.revolvers.push({
+        x: 545, y: 145, side: -1, state: 'idle', timer: 0, flashT: 0,
+        aimX: 400, aimY: 160, cooldown: 0.2, baseCooldown: pCooldown,
+        snapTime: pSnapTime, bulletSpd: pBulletSpd, burstLeft: 0, burstMax: pBurstCount
       });
     }
 
     for (let s = 0; s < segCount; s++) {
       let kind;
       if (lvl === 1) {
-        // Hand-tuned Level 1 full of immediate Original-style trolls
-        kind = ['flowerbait', 'revolver', 'doublefall', 'fork'][s % 4];
+        kind = ['fork', 'doublefall', 'revolver', 'cobbletrap', 'flowerbait'][s % 5];
       } else {
         kind = allKinds[Math.floor(rng() * allKinds.length)];
       }
@@ -522,14 +526,19 @@
       const botY = curY + segH;
       const midY = (topY + botY) / 2;
 
-      // Visual terraced plateau with cliff edge between segments
       terraces.push({ x: 120, y: topY, w: 560, h: segH, cliffH: 36 });
-      // Wooden stair connecting this terrace up to the next terrace
-      const stairX = kind === 'fork' ? 358 : 358;
-      stairVisuals.push({ x: stairX, y: topY - 22, w: 84, h: 66 });
+      stairVisuals.push({ x: 358, y: topY - 22, w: 84, h: 66 });
 
       if (kind === 'fork') {
         const trapRight = rng() > 0.5;
+        // UNPREDICTABLE SIGNS: 50% tell the TRUTH, 50% LIE, and some FLIP text when approached!
+        const signLies = rng() > 0.5;
+        const signFlips = rng() < 0.35;
+        const safeSideText = trapRight ? 'LINKS = SICHER' : 'RECHTS = SICHER';
+        const trapSideText = trapRight ? 'RECHTS = SICHER' : 'LINKS = SICHER';
+        const initialText = signLies ? trapSideText : safeSideText;
+        const flipText = signLies ? safeSideText : trapSideText;
+
         corridors.push({ x: 155, y: topY - 40, w: 490, h: 110 });
         corridors.push({ x: 155, y: topY + 20, w: 170, h: segH - 40 });
         corridors.push({ x: 475, y: topY + 20, w: 170, h: segH - 40 });
@@ -540,11 +549,11 @@
         cobblePaths.push({ x: 215, y: topY + 12, w: 370, h: 46 });
 
         entities.forkAmbushes.push({
-          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 78 + diff * 18
+          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 84 + diff * 16
         });
         entities.signs.push({
-          x: 400, y: botY - 45,
-          text: trapRight ? 'RECHTS = SICHER' : 'LINKS = SICHER'
+          x: 400, y: botY - 45, text: initialText,
+          flips: signFlips, flipped: false, altText: flipText
         });
       } else if (kind === 'stairslog') {
         const alcoveLeft = rng() > 0.5;
@@ -554,7 +563,7 @@
         stairVisuals.push({ x: 325, y: topY + 55, w: 150, h: segH - 110 });
         entities.rollingLogs.push({
           x: 400, y: topY + 18, topY: topY + 18, botY: botY - 12,
-          w: 174, h: 30, speed: pLogSpd, active: false, cooldown: 0.35 + rng() * 0.35
+          w: 178, h: 30, speed: pLogSpd, active: false, cooldown: 0.25 + rng() * 0.25
         });
       } else {
         const w = kind === 'doublefall' ? 270 : 330;
@@ -563,62 +572,67 @@
         cobblePaths.push({ x: 372, y: topY - 10, w: 56, h: segH + 20 });
 
         if (kind === 'doublefall') {
-          // Troll Double-Fakeout: First pine falls & misses slightly below, 0.25s later opposite silent pine slams player
           const firstRight = rng() > 0.4;
           entities.fallPairs.push({
-            triggerY: midY + 75,
-            triggered: false,
-            secondDelay: 0.26,
+            triggerY: midY + 80, triggered: false, secondDelay: 0.20,
             p1: {
-              x: firstRight ? cx + w - 12 : cx + 12, y: midY + 40, dir: firstRight ? -1 : 1,
-              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 115
+              x: firstRight ? cx + w - 12 : cx + 12, y: midY + 45, dir: firstRight ? -1 : 1,
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 120
             },
             p2: {
-              x: firstRight ? cx + 12 : cx + w - 12, y: midY - 45, dir: firstRight ? 1 : -1,
-              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel * 1.18, reach: 155
+              x: firstRight ? cx + 12 : cx + w - 12, y: midY - 40, dir: firstRight ? 1 : -1,
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel * 1.25, reach: 165
             }
           });
         } else if (kind === 'revolver') {
-          // 100% disguised pines right next to cobble path, snapping revolver out with no laser line
-          const count = 1 + (lvl >= 10 ? 1 : 0) + (lvl >= 50 ? 1 : 0);
+          const count = 2 + (lvl >= 20 ? 1 : 0);
           for (let k = 0; k < count; k++) {
             const rightSide = (k % 2 === 0);
             entities.revolvers.push({
-              x: rightSide ? cx + w - 22 : cx + 22,
-              y: topY + 100 + k * (240 / Math.max(1, count)),
+              x: rightSide ? cx + w - 20 : cx + 20,
+              y: topY + 85 + k * (250 / Math.max(1, count)),
               side: rightSide ? -1 : 1,
               state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
-              cooldown: 0.25 + k * 0.35, baseCooldown: pCooldown,
-              snapTime: pSnapTime, bulletSpd: pBulletSpd
+              cooldown: 0.18 + k * 0.28, baseCooldown: pCooldown,
+              snapTime: pSnapTime, bulletSpd: pBulletSpd,
+              burstLeft: 0, burstMax: pBurstCount
             });
           }
+        } else if (kind === 'cobbletrap') {
+          // Hidden spring-pines directly under the cobblestone path (punishes walking straight on the path!)
+          const count = 2 + (lvl >= 30 ? 1 : 0);
+          for (let k = 0; k < count; k++) {
+            entities.cobbleTraps.push({
+              x: 400 + (k % 2 === 0 ? -12 : 12),
+              y: topY + 95 + k * 115,
+              r: 28, triggered: false, popT: 0
+            });
+          }
+          // Truth or lie sign!
+          const tellsTruth = rng() > 0.5;
+          entities.signs.push({
+            x: 310, y: botY - 45,
+            text: tellsTruth ? 'WEG MEIDEN!' : 'NUR AUF WEG GEHEN!',
+            flips: false, flipped: false, altText: ''
+          });
         } else if (kind === 'flowerbait') {
-          // Innocent purple flower or shiny axe in the middle of the grass
           const isAxe = rng() > 0.5;
           entities.flowerBaits.push({
             x: 400 + (rng() - 0.5) * 90, y: midY,
             type: isAxe ? 'axe' : 'flower',
-            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 66 + diff * 14
+            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 70 + diff * 14
           });
-          entities.signs.push({
-            x: 400, y: midY + 88,
-            text: isAxe ? 'GRATIS AXT!' : 'SCHÖNE BLUME'
+          // Control-inversion mushroom nearby!
+          entities.mushrooms.push({
+            x: 400 + (rng() > 0.5 ? 70 : -70), y: midY + 75, r: 16, used: false
           });
-          // Extra bait in higher levels
-          if (lvl >= 25) {
-            entities.flowerBaits.push({
-              x: 400 + (rng() > 0.5 ? 75 : -75), y: topY + 95,
-              type: 'flower', triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 62
-            });
-          }
         } else if (kind === 'chaser') {
-          // Innocent pine sitting BEHIND the player wakes up once player passes it!
           const rockY = topY + 125;
           entities.rocks.push({ x: 308, y: rockY, r: 46 });
           entities.rocks.push({ x: 492, y: rockY, r: 46 });
           entities.chasers.push({
             x: 335, y: botY - 85, active: false, stuck: false,
-            speed: pChaserSpd, r: 22, wakeY: botY - 125, topLimitY: rockY - 45
+            speed: pChaserSpd, r: 22, wakeY: botY - 115, topLimitY: rockY - 45
           });
         } else if (kind === 'sniper') {
           entities.pushLogs.push({
@@ -628,21 +642,26 @@
           entities.revolvers.push({
             x: 400, y: topY + 42, side: 1,
             state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
-            cooldown: 0.35, baseCooldown: pCooldown * 0.88,
-            snapTime: pSnapTime, bulletSpd: pBulletSpd * 1.05
+            cooldown: 0.25, baseCooldown: pCooldown * 0.82,
+            snapTime: pSnapTime, bulletSpd: pBulletSpd * 1.08,
+            burstLeft: 0, burstMax: pBurstCount
           });
         }
       }
 
-      // Grass tufts & decorative rocks on plateau edges
+      // Fake Green "CHECKPOINT" Flag in the middle of the level!
+      if (s === Math.floor(segCount / 2) && kind !== 'fork' && kind !== 'stairslog') {
+        entities.fakeCheckpoints.push({
+          x: 400 + (rng() > 0.5 ? 65 : -65), y: botY - 35,
+          triggered: false, exploded: false, fuse: 0, maxFuse: pBaitSlam
+        });
+      }
+
       for (let g = 0; g < 10; g++) {
         const gx = 145 + rng() * 510;
         const gy = topY + 25 + rng() * (segH - 50);
-        if (Math.abs(gx - 400) > 55) {
-          grassTufts.push({ x: gx, y: gy, blades: 3 + Math.floor(rng() * 3) });
-        }
+        if (Math.abs(gx - 400) > 55) grassTufts.push({ x: gx, y: gy, blades: 3 + Math.floor(rng() * 3) });
       }
-
       curY = botY;
     }
 
@@ -653,7 +672,7 @@
     cobblePaths.push({ x: 372, y: curY - 10, w: 56, h: 170 });
     spawnPos = { x: 400, y: curY + 145 };
 
-    // Decorative Low-Poly Pines strictly outside walkable paths
+    // Decorative Pines strictly outside corridors
     const maxY = curY + 320;
     for (let y = 30; y <= maxY; y += 64) {
       for (let x = 20; x <= 780; x += 66) {
@@ -666,14 +685,15 @@
     }
   }
 
-  // Game Loop State
-  let state = 'menu'; // menu, playing, dead, paused, levelwin
+  // Runtime State
+  let state = 'menu';
   let levelTime = 0;
   let levelDeaths = 0;
   let hitStop = 0;
   let deathTimer = 0;
   let deathLine = '';
   let deathPos = { x: 400, y: 400 };
+  let confuseTimer = 0;
   let camera = { x: 400, y: 1000, shake: 0, zoom: 1 };
   let bullets = [];
   let particles = [];
@@ -690,21 +710,16 @@
     particles = [];
     player.x = spawnPos.x;
     player.y = spawnPos.y;
-    player.vx = 0;
-    player.vy = 0;
+    player.vx = 0; player.vy = 0;
     player.alive = true;
-    player.ragdollRot = 0;
-    player.ragdollSpin = 0;
+    player.ragdollRot = 0; player.ragdollSpin = 0;
     player.glasses = null;
-    if (resetTimer) {
-      levelTime = 0;
-      levelDeaths = 0;
-    }
+    confuseTimer = 0;
+    confuseBadge.classList.add('hidden');
+    if (resetTimer) { levelTime = 0; levelDeaths = 0; }
     hitStop = 0;
-    camera.x = player.x;
-    camera.y = player.y - 55;
-    camera.shake = 0;
-    camera.zoom = 1;
+    camera.x = player.x; camera.y = player.y - 55;
+    camera.shake = 0; camera.zoom = 1;
     state = 'playing';
     menuOverlay.classList.add('hidden');
     pauseOverlay.classList.add('hidden');
@@ -724,31 +739,31 @@
     if (!player.alive || state !== 'playing') return;
     player.alive = false;
     state = 'dead';
-    hitStop = 0.09;     // 90ms classic hit-stop
-    deathTimer = 0.78;  // fast rage-loop respawn
+    hitStop = 0.09;
+    deathTimer = 0.72;
     levelDeaths++;
     save.totalDeaths++;
     persistSave();
     updateRageHUD();
     sfxHit();
-    camera.shake = 14;
-    camera.zoom = 1.14;
+    camera.shake = 15;
+    camera.zoom = 1.15;
     deathPos = { x: player.x, y: player.y - 36 };
-    deathLine = customLine || SARCASTIC_LINES[Math.floor(Math.random() * SARCASTIC_LINES.length)];
+    deathLine = customLine || 'Vertrauen ist gut. Baum ist besser.';
 
     const len = Math.hypot(knockX, knockY) || 1;
-    player.vx = (knockX / len) * 300;
-    player.vy = (knockY / len) * 300;
-    player.ragdollSpin = (Math.random() > 0.5 ? 1 : -1) * 13;
+    player.vx = (knockX / len) * 310;
+    player.vy = (knockY / len) * 310;
+    player.ragdollSpin = (Math.random() > 0.5 ? 1 : -1) * 14;
     player.glasses = {
       x: player.x, y: player.y - 16,
-      vx: (Math.random() - 0.5) * 200 - (knockX / len) * 90,
-      vy: -175 - Math.random() * 80,
+      vx: (Math.random() - 0.5) * 210 - (knockX / len) * 90,
+      vy: -180 - Math.random() * 80,
       rot: 0, spin: (Math.random() - 0.5) * 18
     };
     for (let i = 0; i < 18; i++) {
       const a = Math.random() * Math.PI * 2;
-      const sp = 70 + Math.random() * 160;
+      const sp = 75 + Math.random() * 165;
       particles.push({
         x: player.x, y: player.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
         life: 0.4 + Math.random() * 0.3, color: i % 2 ? '#f7e479' : '#e05a47', size: 4
@@ -764,16 +779,12 @@
       startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
       return;
     }
-    if (e.code === 'KeyR' && state === 'playing') {
-      startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
-    }
+    if (e.code === 'KeyR' && state === 'playing') startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
     if (e.code === 'Escape' || e.code === 'KeyP') {
-      if (state === 'playing') openPause();
-      else if (state === 'paused') closePause();
+      if (state === 'playing') openPause(); else if (state === 'paused') closePause();
     }
     if ((e.code === 'Enter' || e.code === 'Space') && state === 'levelwin') {
-      if (currentLevel < MAX_LEVEL) startLevel(currentLevel + 1, true);
-      else startLevel(1, true);
+      startLevel(currentLevel < MAX_LEVEL ? currentLevel + 1 : 1, true);
     }
   });
   window.addEventListener('keyup', (e) => { keys[e.code] = false; });
@@ -805,14 +816,10 @@
     if (dist > 6) {
       joy.dx = (Math.cos(ang) * clamped) / joy.maxR;
       joy.dy = (Math.sin(ang) * clamped) / joy.maxR;
-    } else {
-      joy.dx = 0; joy.dy = 0;
-    }
+    } else { joy.dx = 0; joy.dy = 0; }
   });
   function releaseJoy(e) {
-    if (joy.active && e.pointerId === joy.id) {
-      joy.active = false; joy.id = null; joy.dx = 0; joy.dy = 0;
-    }
+    if (joy.active && e.pointerId === joy.id) { joy.active = false; joy.id = null; joy.dx = 0; joy.dy = 0; }
   }
   canvas.addEventListener('pointerup', releaseJoy);
   canvas.addEventListener('pointercancel', releaseJoy);
@@ -831,22 +838,14 @@
   document.getElementById('btnRestart').onclick = () => {
     if (state === 'playing' || state === 'dead') startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
   };
-
-  function openPause() {
-    state = 'paused';
-    pauseSub.textContent = `Level ${currentLevel}/100 · Alles völlig harmlos hier.`;
-    pauseOverlay.classList.remove('hidden');
-  }
-  function closePause() {
-    pauseOverlay.classList.add('hidden');
-    state = 'playing';
-  }
+  function openPause() { state = 'paused'; pauseSub.textContent = `Level ${currentLevel}/100 · Hier passiert garantiert nichts.`; pauseOverlay.classList.remove('hidden'); }
+  function closePause() { pauseOverlay.classList.add('hidden'); state = 'playing'; }
   document.getElementById('btnPause').onclick = () => { if (state === 'playing') openPause(); };
   document.getElementById('btnResume').onclick = closePause;
   document.getElementById('btnRestartLevel').onclick = () => { closePause(); startLevel(save.mode === 'challenge' ? 1 : currentLevel, false); };
   document.getElementById('btnWaldTipp').onclick = () => {
     closePause();
-    killPlayer('Wald-Tipp: Vertraue keinem Button.', 0, 1);
+    killPlayer('Netter Versuch. Wird nicht leichter.', 0, 1);
   };
   document.getElementById('btnToMenu').onclick = () => {
     state = 'menu'; pauseOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
@@ -857,7 +856,6 @@
     state = 'menu'; levelWinOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
 
-  // Collision Helpers
   function resolveCircleObstacle(px, py, pr, ox, oy, or) {
     const dx = px - ox; const dy = py - oy;
     const dist = Math.hypot(dx, dy);
@@ -875,18 +873,13 @@
     return (dx * dx + dy * dy) < (r * r);
   }
 
-  // Update
   function update(dt) {
-    if (hitStop > 0) {
-      hitStop -= dt;
-      return;
-    }
+    if (hitStop > 0) { hitStop -= dt; return; }
     if (camera.shake > 0) camera.shake = Math.max(0, camera.shake - dt * 36);
     camera.zoom += (1 - camera.zoom) * Math.min(1, 5 * dt);
 
     for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+      const p = particles[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
       if (p.life <= 0) particles.splice(i, 1);
     }
 
@@ -895,20 +888,21 @@
       player.vx *= Math.pow(0.05, dt); player.vy *= Math.pow(0.05, dt);
       player.ragdollRot += player.ragdollSpin * dt;
       if (player.glasses) {
-        player.glasses.x += player.glasses.vx * dt;
-        player.glasses.y += player.glasses.vy * dt;
-        player.glasses.vy += 450 * dt;
-        player.glasses.rot += player.glasses.spin * dt;
+        player.glasses.x += player.glasses.vx * dt; player.glasses.y += player.glasses.vy * dt;
+        player.glasses.vy += 450 * dt; player.glasses.rot += player.glasses.spin * dt;
       }
       deathTimer -= dt;
-      if (deathTimer <= 0) {
-        startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
-      }
+      if (deathTimer <= 0) startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
       return;
     }
 
     if (state !== 'playing') return;
     levelTime += dt;
+
+    if (confuseTimer > 0) {
+      confuseTimer -= dt;
+      if (confuseTimer <= 0) confuseBadge.classList.add('hidden');
+    }
 
     let ix = joy.active ? joy.dx : 0;
     let iy = joy.active ? joy.dy : 0;
@@ -918,6 +912,9 @@
     if (keys['ArrowDown'] || keys['KeyS']) iy += 1;
     const ilen = Math.hypot(ix, iy);
     if (ilen > 1) { ix /= ilen; iy /= ilen; }
+
+    // Control inversion when confused by mushroom!
+    if (confuseTimer > 0) { ix = -ix; iy = -iy; }
 
     const maxSpeed = 205;
     const accel = currentBiome.ice ? 4.8 : 12.0;
@@ -930,27 +927,29 @@
     if (isCircleWalkable(nx, player.y, player.r)) player.x = nx; else player.vx = 0;
     if (isCircleWalkable(player.x, ny, player.r)) player.y = ny; else player.vy = 0;
 
+    // Flipping signs when player gets close!
+    for (const sg of entities.signs) {
+      if (sg.flips && !sg.flipped && Math.hypot(player.x - sg.x, player.y - sg.y) < 115) {
+        sg.flipped = true;
+        sg.text = sg.altText;
+        sfxTroll();
+      }
+    }
+
     // 1. Double-Fakeout Falling Pairs
     for (const pair of entities.fallPairs) {
       if (!pair.triggered && player.y < pair.triggerY) {
-        pair.triggered = true;
-        pair.p1.falling = true;
-        sfxClickClack();
+        pair.triggered = true; pair.p1.falling = true; sfxClickClack();
       }
       if (pair.triggered && !pair.p2.falling && !pair.p2.fallen) {
         pair.secondDelay -= dt;
-        if (pair.secondDelay <= 0) {
-          pair.p2.falling = true;
-          sfxClickClack();
-        }
+        if (pair.secondDelay <= 0) { pair.p2.falling = true; sfxClickClack(); }
       }
       for (const ft of [pair.p1, pair.p2]) {
         if (ft.falling) {
-          ft.speed += ft.accel * dt;
-          ft.angle += ft.speed * dt;
+          ft.speed += ft.accel * dt; ft.angle += ft.speed * dt;
           if (ft.angle >= Math.PI / 2) {
-            ft.angle = Math.PI / 2; ft.falling = false; ft.fallen = true;
-            camera.shake = 6; sfxBoom();
+            ft.angle = Math.PI / 2; ft.falling = false; ft.fallen = true; camera.shake = 6; sfxBoom();
           } else if (ft.angle > 0.78) {
             const minX = ft.dir < 0 ? ft.x - ft.reach : ft.x;
             const maxX = ft.dir < 0 ? ft.x : ft.x + ft.reach;
@@ -962,27 +961,33 @@
       }
     }
 
-    // 2. Disguised Revolver Pines (no laser line - sudden snap + click-clack!)
+    // 2. Revolver Pines with Burst Fire
     for (const rv of entities.revolvers) {
       if (rv.flashT > 0) rv.flashT -= dt;
-      if (Math.abs(player.y - rv.y) < 300) {
+      if (Math.abs(player.y - rv.y) < 320) {
         rv.cooldown -= dt;
         if (rv.state === 'idle' && rv.cooldown <= 0) {
           rv.state = 'snap'; rv.timer = rv.snapTime;
           rv.aimX = player.x; rv.aimY = player.y;
+          rv.burstLeft = rv.burstMax;
           sfxClickClack();
         } else if (rv.state === 'snap') {
           rv.timer -= dt;
           if (rv.timer <= 0) {
-            const ang = Math.atan2(rv.aimY - rv.y, rv.aimX - rv.x);
+            // Slight lead aim on burst shots
+            const ang = Math.atan2(player.y - rv.y, player.x - rv.x);
             bullets.push({
               x: rv.x + Math.cos(ang) * 26, y: rv.y - 24 + Math.sin(ang) * 10,
               vx: Math.cos(ang) * rv.bulletSpd, vy: Math.sin(ang) * rv.bulletSpd,
               r: 5.5, life: 2.0
             });
-            rv.flashT = 0.08;
-            sfxShot();
-            rv.state = 'idle'; rv.cooldown = rv.baseCooldown;
+            rv.flashT = 0.07; sfxShot();
+            rv.burstLeft--;
+            if (rv.burstLeft > 0) {
+              rv.timer = 0.14; // rapid burst
+            } else {
+              rv.state = 'idle'; rv.cooldown = rv.baseCooldown;
+            }
           }
         }
       }
@@ -990,44 +995,39 @@
 
     // 3. Fork Ambushes
     for (const fa of entities.forkAmbushes) {
-      if (!fa.triggered && Math.hypot(player.x - fa.x, player.y - fa.y) < 102) {
+      if (!fa.triggered && Math.hypot(player.x - fa.x, player.y - fa.y) < 105) {
         fa.triggered = true; fa.active = true; sfxBoom();
       }
       if (fa.active) {
-        fa.r = Math.min(fa.maxR, fa.r + 410 * dt);
+        fa.r = Math.min(fa.maxR, fa.r + 440 * dt);
         if (Math.hypot(player.x - fa.x, player.y - fa.y) < fa.r + player.r - 8) {
-          killPlayer('Schilder lügen im Wald grundsätzlich.', 0, 1);
+          killPlayer('Mal stimmt das Schild, mal nicht.', 0, 1);
         }
       }
     }
 
-    // 4. Rocks & Rear Chaser Pines
+    // 4. Rocks & Chasers
     for (const rk of entities.rocks) {
       const res = resolveCircleObstacle(player.x, player.y, player.r, rk.x, rk.y, rk.r);
       if (isCircleWalkable(res.x, res.y, player.r)) { player.x = res.x; player.y = res.y; }
     }
     for (const ch of entities.chasers) {
-      if (!ch.active && player.y < ch.wakeY && player.y > ch.topLimitY) {
-        ch.active = true; sfxClickClack();
-      }
+      if (!ch.active && player.y < ch.wakeY && player.y > ch.topLimitY) { ch.active = true; sfxClickClack(); }
       if (ch.active && !ch.stuck) {
         const dx = player.x - ch.x; const dy = player.y - ch.y;
         const d = Math.hypot(dx, dy) || 1;
         const cx = ch.x + (dx / d) * ch.speed * dt;
         const cy = ch.y + (dy / d) * ch.speed * dt;
         let blocked = false;
-        for (const rk of entities.rocks) {
-          if (Math.hypot(cx - rk.x, cy - rk.y) < rk.r + 36) blocked = true;
-        }
-        if (!blocked) { ch.x = cx; ch.y = cy; }
-        else if (player.y < ch.topLimitY) { ch.stuck = true; }
+        for (const rk of entities.rocks) { if (Math.hypot(cx - rk.x, cy - rk.y) < rk.r + 36) blocked = true; }
+        if (!blocked) { ch.x = cx; ch.y = cy; } else if (player.y < ch.topLimitY) { ch.stuck = true; }
         if (Math.hypot(player.x - ch.x, player.y - ch.y) < ch.r + player.r) {
-          killPlayer('Niemals einer Tanne den Rücken kehren.', dx, dy);
+          killPlayer('Zu langsam für eine Tanne.', dx, dy);
         }
       }
     }
 
-    // 5. Rolling Logs on Stairs
+    // 5. Rolling Logs
     for (const rl of entities.rollingLogs) {
       if (player.y < rl.botY + 70 && player.y > rl.topY - 50) {
         if (!rl.active) {
@@ -1038,7 +1038,7 @@
           if (circleRectHit(player.x, player.y, player.r, rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h)) {
             killPlayer('Treppen sind kein sicherer Ort.', 0, 1);
           }
-          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.42, 0.95 - (currentLevel / 180)); }
+          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.32, 0.78 - (currentLevel / 200)); }
         }
       }
     }
@@ -1057,9 +1057,17 @@
       }
     }
 
-    // 7. Purple Flower & Axe Baits
+    // 7. Cobblestone Hidden Traps
+    for (const ct of entities.cobbleTraps) {
+      if (!ct.triggered && Math.hypot(player.x - ct.x, player.y - ct.y) < ct.r + player.r - 4) {
+        ct.triggered = true; sfxBoom();
+        killPlayer('Wer läuft auch mitten auf dem Weg?', 0, 1);
+      }
+    }
+
+    // 8. Flower & Axe Baits
     for (const fb of entities.flowerBaits) {
-      if (!fb.triggered && Math.hypot(player.x - fb.x, player.y - fb.y) < 46) {
+      if (!fb.triggered && Math.hypot(player.x - fb.x, player.y - fb.y) < 48) {
         fb.triggered = true; fb.handActive = true; fb.slamT = fb.maxSlam; sfxClickClack();
       }
       if (fb.handActive) {
@@ -1067,40 +1075,58 @@
         if (fb.slamT <= 0) {
           fb.handActive = false; camera.shake = 10; sfxBoom();
           if (Math.hypot(player.x - fb.x, player.y - fb.y) < fb.blastR) {
-            killPlayer(fb.type === 'axe' ? 'Die Axt war natürlich ein Köder.' : 'Die lila Blume wollte das auch nicht.', 0, 1);
+            killPlayer(fb.type === 'axe' ? 'Die Axt war natürlich ein Köder.' : 'Die lila Blume hasst dich auch.', 0, 1);
           }
         }
       }
     }
 
-    // 8. Fake Finish Flags
-    for (const ff of entities.fakeFlags) {
-      if (ff.exploded) continue;
-      if (!ff.triggered && Math.hypot(player.x - ff.x, player.y - ff.y) < 58) {
-        ff.triggered = true; ff.active = true; ff.fuse = ff.maxFuse; sfxClickClack();
+    // 9. Control-Inversion Mushrooms
+    for (const m of entities.mushrooms) {
+      if (!m.used && Math.hypot(player.x - m.x, player.y - m.y) < m.r + player.r) {
+        m.used = true;
+        confuseTimer = 2.8;
+        confuseBadge.classList.remove('hidden');
+        sfxTroll();
+        showToast('Pilz erwischt: Steuerung 2,8s verdreht!');
       }
-      if (ff.active) {
-        ff.fuse -= dt;
-        if (ff.fuse <= 0) {
-          ff.active = false; ff.exploded = true; sfxBoom(); camera.shake = 11;
+    }
+
+    // 10. Fake Checkpoints
+    for (const fc of entities.fakeCheckpoints) {
+      if (fc.exploded) continue;
+      if (!fc.triggered && Math.hypot(player.x - fc.x, player.y - fc.y) < 42) {
+        fc.triggered = true; fc.fuse = fc.maxFuse; sfxTroll();
+        showToast('CHECKPOINT! (Kleiner Scherz)');
+      }
+      if (fc.triggered) {
+        fc.fuse -= dt;
+        if (fc.fuse <= 0) {
+          fc.exploded = true; sfxBoom(); camera.shake = 12;
           for (let k = 0; k < 16; k++) {
             const a = Math.random() * Math.PI * 2;
-            particles.push({
-              x: ff.x, y: ff.y, vx: Math.cos(a) * 165, vy: Math.sin(a) * 165,
-              life: 0.45, color: k % 2 ? '#ff4d4d' : '#f7e479', size: 6
-            });
+            particles.push({ x: fc.x, y: fc.y, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, life: 0.45, color: '#22c55e', size: 6 });
           }
-          if (Math.hypot(player.x - ff.x, player.y - ff.y) < 76) {
-            killPlayer('Das war nicht das echte Ziel.', 0, 1);
+          if (Math.hypot(player.x - fc.x, player.y - fc.y) < 74) {
+            killPlayer('Fake-Checkpoint. Klassiker.', 0, 1);
           }
         }
       }
+    }
+
+    // 11. Runaway Cabin!
+    if (cabin.runaway && !cabin.ranAway && Math.hypot(player.x - (cabin.x + cabin.w / 2), player.y - (cabin.y + cabin.h)) < 85) {
+      cabin.ranAway = true;
+      sfxTroll();
+      showToast('Die Hütte haut ab!');
+    }
+    if (cabin.ranAway && cabin.y > cabin.targetY) {
+      cabin.y = Math.max(cabin.targetY, cabin.y - 340 * dt);
     }
 
     // Bullets
     for (let i = bullets.length - 1; i >= 0; i--) {
-      const b = bullets[i];
-      b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
+      const b = bullets[i]; b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
       let blocked = false;
       for (const pl of entities.pushLogs) {
         if (circleRectHit(b.x, b.y, b.r, pl.x, pl.y, pl.w, pl.h)) { blocked = true; break; }
@@ -1114,8 +1140,8 @@
       if (b.life <= 0) bullets.splice(i, 1);
     }
 
-    // Real Cabin Finish
-    if (circleRectHit(player.x, player.y, player.r, cabin.x, cabin.y + 35, cabin.w, cabin.h - 15)) {
+    // Real Cabin Finish (only after runaway finished!)
+    if ((!cabin.runaway || cabin.y <= cabin.targetY + 5) && circleRectHit(player.x, player.y, player.r, cabin.x, cabin.y + 35, cabin.w, cabin.h - 15)) {
       state = 'levelwin';
       sfxWin();
       if (currentLevel < MAX_LEVEL && currentLevel + 1 > save.maxUnlocked) save.maxUnlocked = currentLevel + 1;
@@ -1134,67 +1160,33 @@
     hudBiome.textContent = currentBiome.name;
   }
 
-  // Drawing Helpers (2.5D Diorama Style matching screenshot)
+  // Drawing Helpers (2.5D Diorama)
   function drawLowPolyPine(c, x, y, scale = 1, angle = 0, showGun = false, gunSide = -1, flash = false) {
-    c.save();
-    c.translate(x, y);
-    c.scale(scale, scale);
-
-    // Long directional sun shadow (upper-left like screenshot)
+    c.save(); c.translate(x, y); c.scale(scale, scale);
     c.fillStyle = 'rgba(0, 0, 0, 0.24)';
-    c.beginPath();
-    c.ellipse(-18, -4, 34, 14, -0.35, 0, Math.PI * 2);
-    c.fill();
-
+    c.beginPath(); c.ellipse(-18, -4, 34, 14, -0.35, 0, Math.PI * 2); c.fill();
     c.rotate(angle);
-    // Short brown trunk
-    c.fillStyle = '#5c3a1e';
-    c.fillRect(-7, -14, 14, 18);
-
-    // 3-tier vibrant low-poly cone (100% innocent & identical for all pines!)
-    const p1 = currentBiome.pine;
-    const p2 = currentBiome.pineDark;
-    // Bottom tier
-    c.fillStyle = p1;
-    c.beginPath(); c.moveTo(0, -56); c.lineTo(-32, -10); c.lineTo(32, -10); c.closePath(); c.fill();
-    c.fillStyle = p2;
-    c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(32, -10); c.closePath(); c.fill();
-    // Middle tier
-    c.fillStyle = p1;
-    c.beginPath(); c.moveTo(0, -76); c.lineTo(-26, -34); c.lineTo(26, -34); c.closePath(); c.fill();
-    c.fillStyle = p2;
-    c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(26, -34); c.closePath(); c.fill();
-    // Top tip
-    c.fillStyle = '#73e827';
-    c.beginPath(); c.moveTo(0, -96); c.lineTo(-17, -56); c.lineTo(17, -56); c.closePath(); c.fill();
-    c.fillStyle = p1;
-    c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(17, -56); c.closePath(); c.fill();
-
-    // Gray revolver with brown grip ONLY when snapping out!
+    c.fillStyle = '#5c3a1e'; c.fillRect(-7, -14, 14, 18);
+    const p1 = currentBiome.pine; const p2 = currentBiome.pineDark;
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -56); c.lineTo(-32, -10); c.lineTo(32, -10); c.closePath(); c.fill();
+    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(32, -10); c.closePath(); c.fill();
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -76); c.lineTo(-26, -34); c.lineTo(26, -34); c.closePath(); c.fill();
+    c.fillStyle = p2; c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(26, -34); c.closePath(); c.fill();
+    c.fillStyle = '#73e827'; c.beginPath(); c.moveTo(0, -96); c.lineTo(-17, -56); c.lineTo(17, -56); c.closePath(); c.fill();
+    c.fillStyle = p1; c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(17, -56); c.closePath(); c.fill();
     if (showGun) {
-      c.save();
-      c.translate(gunSide * 20, -36);
-      c.scale(gunSide, 1);
-      c.fillStyle = '#8d5524';
-      c.fillRect(-4, 2, 7, 12);
-      c.fillStyle = '#6c757d';
-      c.strokeStyle = '#222';
-      c.lineWidth = 1.5;
-      c.fillRect(-2, -4, 24, 8);
-      c.strokeRect(-2, -4, 24, 8);
-      if (flash) {
-        c.fillStyle = '#fff066';
-        c.beginPath(); c.arc(26, 0, 10, 0, Math.PI * 2); c.fill();
-      }
+      c.save(); c.translate(gunSide * 20, -36); c.scale(gunSide, 1);
+      c.fillStyle = '#8d5524'; c.fillRect(-4, 2, 7, 12);
+      c.fillStyle = '#6c757d'; c.strokeStyle = '#222'; c.lineWidth = 1.5;
+      c.fillRect(-2, -4, 24, 8); c.strokeRect(-2, -4, 24, 8);
+      if (flash) { c.fillStyle = '#fff066'; c.beginPath(); c.arc(26, 0, 10, 0, Math.PI * 2); c.fill(); }
       c.restore();
     }
     c.restore();
   }
 
   function drawGlassesShape(c, x, y) {
-    c.save();
-    c.translate(x, y);
-    c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
+    c.save(); c.translate(x, y); c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
     c.fillStyle = save.glasses === 'shades' ? '#111' : 'rgba(230,248,255,0.85)';
     if (save.glasses === 'round') {
       c.beginPath(); c.arc(-4.2, 0, 3.5, 0, Math.PI * 2); c.fill(); c.stroke();
@@ -1207,71 +1199,39 @@
   }
 
   function drawChibiCharacter(c, x, y, walkCycle, alive, rot, scale = 1) {
-    c.save();
-    c.translate(x, y);
-    c.scale(scale, scale);
-
-    // Directional sun shadow
-    c.fillStyle = 'rgba(0,0,0,0.28)';
-    c.beginPath(); c.ellipse(-7, 5, 14, 6, -0.3, 0, Math.PI * 2); c.fill();
-
+    c.save(); c.translate(x, y); c.scale(scale, scale);
+    c.fillStyle = 'rgba(0,0,0,0.28)'; c.beginPath(); c.ellipse(-7, 5, 14, 6, -0.3, 0, Math.PI * 2); c.fill();
     if (!alive) c.rotate(rot);
     const bob = alive ? Math.sin(walkCycle) * 2.5 : 0;
-
-    // Legs (yellow-greenish hiking pants like screenshot)
-    c.fillStyle = '#b8b83d';
-    c.fillRect(-6, -2 + bob * 0.5, 5, 11);
-    c.fillRect(1, -2 - bob * 0.5, 5, 11);
-    c.fillStyle = '#2b2b2b';
-    c.fillRect(-6, 7 + bob * 0.5, 5, 3);
-    c.fillRect(1, 7 - bob * 0.5, 5, 3);
-
-    // Shirt
-    c.fillStyle = save.shirt;
-    c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
+    c.fillStyle = '#b8b83d'; c.fillRect(-6, -2 + bob * 0.5, 5, 11); c.fillRect(1, -2 - bob * 0.5, 5, 11);
+    c.fillStyle = '#2b2b2b'; c.fillRect(-6, 7 + bob * 0.5, 5, 3); c.fillRect(1, 7 - bob * 0.5, 5, 3);
+    c.fillStyle = save.shirt; c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
     c.beginPath(); c.roundRect(-9, -17 + bob * 0.3, 18, 16, 5); c.fill(); c.stroke();
-
-    // Big Chibi Head
-    c.fillStyle = '#f5cfa8';
-    c.beginPath(); c.arc(0, -27 + bob * 0.3, 11.5, 0, Math.PI * 2); c.fill(); c.stroke();
-
-    // Hair
-    c.fillStyle = save.hair;
-    c.beginPath(); c.arc(0, -30 + bob * 0.3, 11.5, Math.PI * 0.92, Math.PI * 2.08); c.fill();
-
+    c.fillStyle = '#f5cfa8'; c.beginPath(); c.arc(0, -27 + bob * 0.3, 11.5, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.fillStyle = save.hair; c.beginPath(); c.arc(0, -30 + bob * 0.3, 11.5, Math.PI * 0.92, Math.PI * 2.08); c.fill();
     if (alive) drawGlassesShape(c, 0, -26 + bob * 0.3);
-
-    // Hat
     const hy = -37 + bob * 0.3;
     if (save.hat === 'straw') {
-      c.fillStyle = '#e5c158';
-      c.beginPath(); c.ellipse(0, hy + 2, 16, 4.5, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#e5c158'; c.beginPath(); c.ellipse(0, hy + 2, 16, 4.5, 0, 0, Math.PI * 2); c.fill(); c.stroke();
       c.beginPath(); c.arc(0, hy + 1, 8, Math.PI, Math.PI * 2); c.fill(); c.stroke();
     } else if (save.hat === 'cap') {
-      c.fillStyle = '#2563eb';
-      c.beginPath(); c.arc(0, hy + 2, 10, Math.PI, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#2563eb'; c.beginPath(); c.arc(0, hy + 2, 10, Math.PI, Math.PI * 2); c.fill(); c.stroke();
       c.fillRect(0, hy, 12, 3);
     } else if (save.hat === 'tinfoil') {
-      c.fillStyle = '#d1d5db';
-      c.beginPath(); c.moveTo(-10, hy + 3); c.lineTo(0, hy - 14); c.lineTo(10, hy + 3); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#d1d5db'; c.beginPath(); c.moveTo(-10, hy + 3); c.lineTo(0, hy - 14); c.lineTo(10, hy + 3); c.closePath(); c.fill(); c.stroke();
     } else if (save.hat === 'helmet') {
-      c.fillStyle = '#facc15';
-      c.beginPath(); c.arc(0, hy + 3, 11.5, Math.PI, Math.PI * 2); c.fill(); c.stroke();
+      c.fillStyle = '#facc15'; c.beginPath(); c.arc(0, hy + 3, 11.5, Math.PI, Math.PI * 2); c.fill(); c.stroke();
     } else if (save.hat === 'crown') {
-      c.fillStyle = '#fbbf24';
-      c.beginPath();
-      c.moveTo(-8, hy + 2); c.lineTo(-8, hy - 7); c.lineTo(-3, hy - 2);
-      c.lineTo(0, hy - 9); c.lineTo(3, hy - 2); c.lineTo(8, hy - 7); c.lineTo(8, hy + 2);
-      c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#fbbf24'; c.beginPath();
+      c.moveTo(-8, hy + 2); c.lineTo(-8, hy - 7); c.lineTo(-3, hy - 2); c.lineTo(0, hy - 9);
+      c.lineTo(3, hy - 2); c.lineTo(8, hy - 7); c.lineTo(8, hy + 2); c.closePath(); c.fill(); c.stroke();
     }
     c.restore();
   }
 
   function drawCobbleRect(x, y, w, h) {
-    ctx.fillStyle = currentBiome.stone;
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = 'rgba(40,44,48,0.45)';
-    ctx.lineWidth = 1.5;
+    ctx.fillStyle = currentBiome.stone; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = 'rgba(40,44,48,0.45)'; ctx.lineWidth = 1.5;
     for (let sy = y; sy < y + h; sy += 18) {
       ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(x + w, sy); ctx.stroke();
       const off = ((Math.floor(sy / 18) % 2) * 14);
@@ -1282,78 +1242,55 @@
   }
 
   function drawStairs(x, y, w, h) {
-    // Wooden steps
-    ctx.fillStyle = '#8c6239';
-    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#8c6239'; ctx.fillRect(x, y, w, h);
     ctx.fillStyle = '#6e4a28';
-    for (let sy = y + 8; sy < y + h; sy += 13) {
-      ctx.fillRect(x + 4, sy, w - 8, 4);
-    }
-    // Gray handrails left & right (matching screenshot!)
-    ctx.fillStyle = '#9ea4ab';
-    ctx.strokeStyle = '#555b61';
-    ctx.lineWidth = 2;
-    ctx.fillRect(x - 4, y - 3, 9, h + 6);
-    ctx.strokeRect(x - 4, y - 3, 9, h + 6);
-    ctx.fillRect(x + w - 5, y - 3, 9, h + 6);
-    ctx.strokeRect(x + w - 5, y - 3, 9, h + 6);
+    for (let sy = y + 8; sy < y + h; sy += 13) ctx.fillRect(x + 4, sy, w - 8, 4);
+    ctx.fillStyle = '#9ea4ab'; ctx.strokeStyle = '#555b61'; ctx.lineWidth = 2;
+    ctx.fillRect(x - 4, y - 3, 9, h + 6); ctx.strokeRect(x - 4, y - 3, 9, h + 6);
+    ctx.fillRect(x + w - 5, y - 3, 9, h + 6); ctx.strokeRect(x + w - 5, y - 3, 9, h + 6);
   }
 
   function drawLowPolyRock(x, y, r) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    ctx.beginPath(); ctx.ellipse(-8, 6, r * 1.05, r * 0.72, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.save(); ctx.translate(x, y);
+    ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.beginPath(); ctx.ellipse(-8, 6, r * 1.05, r * 0.72, -0.2, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#c2bcb2';
-    ctx.beginPath();
-    ctx.moveTo(-r * 0.85, r * 0.35); ctx.lineTo(-r * 0.55, -r * 0.75);
+    ctx.beginPath(); ctx.moveTo(-r * 0.85, r * 0.35); ctx.lineTo(-r * 0.55, -r * 0.75);
     ctx.lineTo(r * 0.35, -r * 0.9); ctx.lineTo(r * 0.92, -r * 0.1);
-    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85);
-    ctx.closePath(); ctx.fill();
+    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#999288';
-    ctx.beginPath();
-    ctx.moveTo(0, -r * 0.1); ctx.lineTo(r * 0.92, -r * 0.1);
-    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85);
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, -r * 0.1); ctx.lineTo(r * 0.92, -r * 0.1);
+    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85); ctx.closePath(); ctx.fill();
     ctx.restore();
   }
 
   function drawPurpleFlower(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
+    ctx.save(); ctx.translate(x, y);
     ctx.fillStyle = '#c892eb';
     for (let i = 0; i < 5; i++) {
       const a = (i / 5) * Math.PI * 2;
       ctx.beginPath(); ctx.ellipse(Math.cos(a) * 6, Math.sin(a) * 5, 5, 3.5, a, 0, Math.PI * 2); ctx.fill();
     }
-    ctx.fillStyle = '#f7e479';
-    ctx.beginPath(); ctx.arc(0, 0, 3.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f7e479'; ctx.beginPath(); ctx.arc(0, 0, 3.2, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
 
   function renderMenuPreview(now) {
     if (state !== 'menu') return;
     prevCtx.clearRect(0, 0, 156, 168);
-    prevCtx.fillStyle = currentBiome.grass;
-    prevCtx.fillRect(0, 0, 156, 168);
-    prevCtx.fillStyle = currentBiome.cliff;
-    prevCtx.fillRect(0, 134, 156, 34);
+    prevCtx.fillStyle = currentBiome.grass; prevCtx.fillRect(0, 0, 156, 168);
+    prevCtx.fillStyle = currentBiome.cliff; prevCtx.fillRect(0, 134, 156, 34);
     drawChibiCharacter(prevCtx, 78, 114, now * 0.008, true, 0, 1.85);
   }
 
   function render(now) {
     renderMenuPreview(now);
-
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = canvas.clientWidth; const h = canvas.clientHeight;
     if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
       canvas.width = Math.floor(w * dpr); canvas.height = Math.floor(h * dpr);
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    // Outer cliff valley base
-    ctx.fillStyle = currentBiome.cliffDark;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = currentBiome.cliffDark; ctx.fillRect(0, 0, w, h);
 
     ctx.save();
     const sx = (Math.random() - 0.5) * camera.shake;
@@ -1362,61 +1299,46 @@
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-camera.x, -camera.y);
 
-    // 1. Terraced Grass Plateaus with faceted cliff walls
     for (const tr of terraces) {
-      // Cliff front wall
-      ctx.fillStyle = currentBiome.cliff;
-      ctx.fillRect(tr.x, tr.y + tr.h - 6, tr.w, tr.cliffH + 6);
-      // Facet shadow lines on cliff
+      ctx.fillStyle = currentBiome.cliff; ctx.fillRect(tr.x, tr.y + tr.h - 6, tr.w, tr.cliffH + 6);
       ctx.fillStyle = currentBiome.cliffDark;
-      for (let fx = tr.x + 35; fx < tr.x + tr.w - 20; fx += 75) {
-        ctx.fillRect(fx, tr.y + tr.h - 4, 24, tr.cliffH + 4);
-      }
-      // Grass top
-      ctx.fillStyle = currentBiome.grass;
-      ctx.fillRect(tr.x, tr.y, tr.w, tr.h);
-      ctx.fillStyle = currentBiome.grassHi;
-      ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 10);
+      for (let fx = tr.x + 35; fx < tr.x + tr.w - 20; fx += 75) ctx.fillRect(fx, tr.y + tr.h - 4, 24, tr.cliffH + 4);
+      ctx.fillStyle = currentBiome.grass; ctx.fillRect(tr.x, tr.y, tr.w, tr.h);
+      ctx.fillStyle = currentBiome.grassHi; ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 10);
     }
 
-    // 2. Cobblestone Paths
     for (const cp of cobblePaths) drawCobbleRect(cp.x, cp.y, cp.w, cp.h);
-
-    // 3. Wooden Stairs with Gray Handrails
     for (const st of stairVisuals) drawStairs(st.x, st.y, st.w, st.h);
 
-    // 4. Stylized Sharp Grass Tufts
     ctx.fillStyle = '#317d0a';
     for (const gt of grassTufts) {
       for (let b = 0; b < gt.blades; b++) {
         const bx = gt.x + (b - 1) * 5;
-        ctx.beginPath();
-        ctx.moveTo(bx - 3, gt.y);
-        ctx.lineTo(bx, gt.y - 14 - (b % 2) * 5);
-        ctx.lineTo(bx + 3, gt.y);
-        ctx.closePath();
-        ctx.fill();
+        ctx.beginPath(); ctx.moveTo(bx - 3, gt.y); ctx.lineTo(bx, gt.y - 14 - (b % 2) * 5); ctx.lineTo(bx + 3, gt.y); ctx.closePath(); ctx.fill();
       }
     }
 
-    // 5. Lying Signs
+    // Subtle hairline crack on cobblestone traps (barely noticeable!)
+    for (const ct of entities.cobbleTraps) {
+      ctx.strokeStyle = ct.triggered ? '#ff4d4d' : 'rgba(20,20,20,0.28)';
+      ctx.lineWidth = ct.triggered ? 3 : 1.2;
+      ctx.beginPath(); ctx.moveTo(ct.x - 10, ct.y - 4); ctx.lineTo(ct.x + 4, ct.y + 6); ctx.lineTo(ct.x + 12, ct.y - 2); ctx.stroke();
+    }
+
     for (const sg of entities.signs) {
       ctx.fillStyle = '#6b4423'; ctx.fillRect(sg.x - 4, sg.y, 8, 26);
       ctx.fillStyle = '#e5cfa3'; ctx.strokeStyle = '#4a2e16'; ctx.lineWidth = 2;
-      ctx.fillRect(sg.x - 56, sg.y - 16, 112, 22); ctx.strokeRect(sg.x - 56, sg.y - 16, 112, 22);
-      ctx.fillStyle = '#1f1f1f'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillRect(sg.x - 62, sg.y - 16, 124, 22); ctx.strokeRect(sg.x - 62, sg.y - 16, 124, 22);
+      ctx.fillStyle = '#1f1f1f'; ctx.font = 'bold 9.5px sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(sg.text, sg.x, sg.y - 1);
     }
 
-    // 6. Purple Flower & Axe Baits
     for (const fb of entities.flowerBaits) {
-      if (fb.type === 'flower') {
-        drawPurpleFlower(fb.x, fb.y);
-      } else {
+      if (fb.type === 'flower') drawPurpleFlower(fb.x, fb.y);
+      else {
         ctx.save(); ctx.translate(fb.x, fb.y);
         ctx.fillStyle = '#8d5524'; ctx.fillRect(-3, -14, 6, 28);
-        ctx.fillStyle = '#cbd5e1';
-        ctx.beginPath(); ctx.moveTo(3, -14); ctx.lineTo(15, -18); ctx.lineTo(15, -4); ctx.lineTo(3, -7); ctx.fill();
+        ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.moveTo(3, -14); ctx.lineTo(15, -18); ctx.lineTo(15, -4); ctx.lineTo(3, -7); ctx.fill();
         ctx.restore();
       }
       if (fb.handActive) {
@@ -1425,90 +1347,73 @@
       }
     }
 
-    // 7. Fake Finish Flags
-    for (const ff of entities.fakeFlags) {
-      if (ff.exploded) continue;
-      ctx.fillStyle = '#d1d5db'; ctx.fillRect(ff.x - 2, ff.y - 36, 4, 38);
-      ctx.fillStyle = ff.active && Math.floor(ff.fuse * 24) % 2 ? '#ff4d4d' : '#f7e479';
-      ctx.beginPath(); ctx.moveTo(ff.x + 2, ff.y - 36); ctx.lineTo(ff.x + 28, ff.y - 26); ctx.lineTo(ff.x + 2, ff.y - 16); ctx.closePath(); ctx.fill();
+    // Glowing Control-Inversion Mushrooms
+    for (const m of entities.mushrooms) {
+      if (m.used) continue;
+      ctx.fillStyle = '#f5f0e1'; ctx.fillRect(m.x - 4, m.y - 4, 8, 12);
+      ctx.fillStyle = '#a855f7'; ctx.beginPath(); ctx.arc(m.x, m.y - 4, 11, Math.PI, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(m.x - 4, m.y - 9, 2.2, 0, Math.PI * 2); ctx.arc(m.x + 4, m.y - 8, 2, 0, Math.PI * 2); ctx.fill();
     }
 
-    // 8. Y-Sorted Objects
+    // Fake Green Checkpoints
+    for (const fc of entities.fakeCheckpoints) {
+      if (fc.exploded) continue;
+      ctx.fillStyle = '#d1d5db'; ctx.fillRect(fc.x - 2, fc.y - 34, 4, 36);
+      ctx.fillStyle = fc.triggered && Math.floor(fc.fuse * 24) % 2 ? '#ff4d4d' : '#22c55e';
+      ctx.beginPath(); ctx.moveTo(fc.x + 2, fc.y - 34); ctx.lineTo(fc.x + 30, fc.y - 24); ctx.lineTo(fc.x + 2, fc.y - 14); ctx.closePath(); ctx.fill();
+    }
+
     const drawables = [];
     for (const t of decoPines) {
-      if (Math.abs(t.y - camera.y) < h * 0.85) {
-        drawables.push({ y: t.y, fn: () => drawLowPolyPine(ctx, t.x, t.y, t.scale, 0) });
-      }
+      if (Math.abs(t.y - camera.y) < h * 0.85) drawables.push({ y: t.y, fn: () => drawLowPolyPine(ctx, t.x, t.y, t.scale, 0) });
     }
     for (const pair of entities.fallPairs) {
       drawables.push({ y: pair.p1.y, fn: () => drawLowPolyPine(ctx, pair.p1.x, pair.p1.y, 1.12, pair.p1.dir * pair.p1.angle) });
       drawables.push({ y: pair.p2.y, fn: () => drawLowPolyPine(ctx, pair.p2.x, pair.p2.y, 1.12, pair.p2.dir * pair.p2.angle) });
     }
     for (const rv of entities.revolvers) {
-      drawables.push({
-        y: rv.y,
-        fn: () => drawLowPolyPine(ctx, rv.x, rv.y, 1.08, 0, rv.state === 'snap' || rv.flashT > 0, rv.side, rv.flashT > 0)
-      });
+      drawables.push({ y: rv.y, fn: () => drawLowPolyPine(ctx, rv.x, rv.y, 1.08, 0, rv.state === 'snap' || rv.flashT > 0, rv.side, rv.flashT > 0) });
     }
     for (const fa of entities.forkAmbushes) {
-      if (fa.active) {
-        drawables.push({
-          y: fa.y,
-          fn: () => {
-            ctx.fillStyle = 'rgba(220,50,35,0.35)';
-            ctx.beginPath(); ctx.arc(fa.x, fa.y, fa.r, 0, Math.PI * 2); ctx.fill();
-            drawLowPolyPine(ctx, fa.x, fa.y, 1.25, 0);
-          }
-        });
-      }
+      if (fa.active) drawables.push({
+        y: fa.y, fn: () => {
+          ctx.fillStyle = 'rgba(220,50,35,0.35)'; ctx.beginPath(); ctx.arc(fa.x, fa.y, fa.r, 0, Math.PI * 2); ctx.fill();
+          drawLowPolyPine(ctx, fa.x, fa.y, 1.25, 0);
+        }
+      });
     }
-    for (const rk of entities.rocks) {
-      drawables.push({ y: rk.y + 8, fn: () => drawLowPolyRock(rk.x, rk.y, rk.r) });
-    }
-    for (const ch of entities.chasers) {
-      drawables.push({ y: ch.y, fn: () => drawLowPolyPine(ctx, ch.x, ch.y, 1.1, 0) });
-    }
+    for (const rk of entities.rocks) drawables.push({ y: rk.y + 8, fn: () => drawLowPolyRock(rk.x, rk.y, rk.r) });
+    for (const ch of entities.chasers) drawables.push({ y: ch.y, fn: () => drawLowPolyPine(ctx, ch.x, ch.y, 1.1, 0) });
     for (const rl of entities.rollingLogs) {
-      if (rl.active) {
-        drawables.push({
-          y: rl.y,
-          fn: () => {
-            ctx.fillStyle = '#6b4423'; ctx.strokeStyle = '#2d1a0a'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.roundRect(rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h, 12); ctx.fill(); ctx.stroke();
-          }
-        });
-      }
+      if (rl.active) drawables.push({
+        y: rl.y, fn: () => {
+          ctx.fillStyle = '#6b4423'; ctx.strokeStyle = '#2d1a0a'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.roundRect(rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h, 12); ctx.fill(); ctx.stroke();
+        }
+      });
     }
     for (const pl of entities.pushLogs) {
       drawables.push({
-        y: pl.y + pl.h / 2,
-        fn: () => {
+        y: pl.y + pl.h / 2, fn: () => {
           ctx.fillStyle = '#7f5539'; ctx.strokeStyle = '#2d1a0a'; ctx.lineWidth = 3;
           ctx.beginPath(); ctx.roundRect(pl.x, pl.y, pl.w, pl.h, 8); ctx.fill(); ctx.stroke();
         }
       });
     }
-    // Finish Cabin
     drawables.push({
-      y: cabin.y + cabin.h,
-      fn: () => {
+      y: cabin.y + cabin.h, fn: () => {
         ctx.fillStyle = '#8b5a2b'; ctx.strokeStyle = '#2b180a'; ctx.lineWidth = 3.5;
-        ctx.fillRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
-        ctx.strokeRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
+        ctx.fillRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25); ctx.strokeRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
         ctx.fillStyle = currentLevel === MAX_LEVEL ? '#eab308' : '#a63429';
-        ctx.beginPath();
-        ctx.moveTo(cabin.x - 14, cabin.y + 28); ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
+        ctx.beginPath(); ctx.moveTo(cabin.x - 14, cabin.y + 28); ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
         ctx.lineTo(cabin.x + cabin.w + 14, cabin.y + 28); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.fillStyle = '#f7e479';
-        ctx.fillRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
-        ctx.strokeRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
+        ctx.fillRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38); ctx.strokeRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
       }
     });
 
-    // Player & flying glasses
     drawables.push({
-      y: player.y,
-      fn: () => {
+      y: player.y, fn: () => {
         drawChibiCharacter(ctx, player.x, player.y, player.walkCycle, player.alive, player.ragdollRot, 1);
         if (player.glasses) {
           ctx.save(); ctx.translate(player.glasses.x, player.glasses.y); ctx.rotate(player.glasses.rot);
@@ -1520,40 +1425,28 @@
     drawables.sort((a, b) => a.y - b.y);
     for (const d of drawables) d.fn();
 
-    // Bullets
     ctx.fillStyle = '#ffe066'; ctx.strokeStyle = '#111'; ctx.lineWidth = 1.8;
-    for (const b of bullets) {
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    }
-    // Particles
-    for (const p of particles) {
-      ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
-    }
+    for (const b of bullets) { ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+    for (const p of particles) { ctx.fillStyle = p.color; ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size); }
 
-    // Sarcastic Death One-Liner floating right above crash site
     if (state === 'dead' && deathLine) {
-      ctx.save();
-      ctx.font = 'bold 14px system-ui, sans-serif';
+      ctx.save(); ctx.font = 'bold 14px system-ui, sans-serif';
       const tw = ctx.measureText(deathLine).width + 20;
-      ctx.fillStyle = 'rgba(18, 24, 14, 0.92)';
-      ctx.strokeStyle = '#f7e479'; ctx.lineWidth = 2;
+      ctx.fillStyle = 'rgba(18, 24, 14, 0.92)'; ctx.strokeStyle = '#f7e479'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.roundRect(deathPos.x - tw / 2, deathPos.y - 24, tw, 28, 8); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = '#f7e479'; ctx.textAlign = 'center';
-      ctx.fillText(deathLine, deathPos.x, deathPos.y - 5);
+      ctx.fillStyle = '#f7e479'; ctx.textAlign = 'center'; ctx.fillText(deathLine, deathPos.x, deathPos.y - 5);
       ctx.restore();
     }
 
     ctx.restore();
 
-    // Virtual Joystick
     if (joy.active && state === 'playing') {
       ctx.save();
       ctx.beginPath(); ctx.arc(joy.ox, joy.oy, joy.maxR, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.fillStyle = confuseTimer > 0 ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.14)'; ctx.fill();
+      ctx.strokeStyle = confuseTimer > 0 ? '#c084fc' : 'rgba(255,255,255,0.38)'; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.beginPath(); ctx.arc(joy.cx, joy.cy, 22, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(247,228,121,0.78)'; ctx.fill();
+      ctx.fillStyle = confuseTimer > 0 ? '#c084fc' : 'rgba(247,228,121,0.78)'; ctx.fill();
       ctx.restore();
     }
   }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baeume-hassen-dich-v3';
+const CACHE_NAME = 'baeume-hassen-dich-v4';
 const ASSETS = [
   './',
   './index.html',
