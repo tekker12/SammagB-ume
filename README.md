@@ -1,4 +1,4 @@
-# sams bäume– Version 6 (Rage-Mode & Troll-Upgrade)
+# Sam mag Bäume, aber sie ihn nicht (Version 7)
 
 Eigenständige 2.5D-Diorama-Web-App für Android (PWA) und Desktop mit 100 Leveln, drei Spielmodi (Normal, Challenge, Rage-Mode) und Network-First-Update-Strategie.
 
