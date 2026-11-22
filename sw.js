@@ -1,4 +1,4 @@
-const CACHE_NAME = 'baeume-hassen-dich-v5';
+const CACHE_NAME = 'baeume-hassen-dich-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -22,15 +22,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Network-First: immer neueste Version von GitHub laden, Cache nur offline nutzen
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-        return response;
-      }).catch(() => caches.match('./index.html'));
-    })
+    fetch(event.request).then((response) => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+      return response;
+    }).catch(() => caches.match(event.request).then((c) => c || caches.match('./index.html')))
   );
 });

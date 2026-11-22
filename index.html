@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Bäume hassen dich – Rage-Edition</title>
+  <title>Bäume hassen dich – v6 Rage-Mode</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
@@ -31,9 +31,10 @@
       border: 3px solid #76a642; border-radius: 18px;
       padding: 16px 18px; width: 100%; max-width: 450px;
       box-shadow: 0 16px 40px rgba(0,0,0,0.65);
+      position: relative;
     }
-    h1 { margin: 0 0 2px; font-size: 1.46rem; text-align: center; color: #f7e479; letter-spacing: 0.4px; }
-    .sub { text-align: center; font-size: 0.82rem; color: #cfe0be; margin: 0 0 10px; }
+    h1 { margin: 0 0 2px; font-size: 1.44rem; text-align: center; color: #f7e479; letter-spacing: 0.4px; }
+    .sub { text-align: center; font-size: 0.81rem; color: #cfe0be; margin: 0 0 10px; }
 
     .preview-wrap {
       display: flex; align-items: center; gap: 12px; background: #1a2614;
@@ -64,18 +65,20 @@
     }
     input[type="range"] { flex: 1; accent-color: #e6a23c; }
 
-    .mode-row { display: flex; gap: 8px; margin-bottom: 11px; }
+    .mode-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 11px; }
     .mode-btn {
-      flex: 1; padding: 8px; border-radius: 10px; border: 2px solid #537a2b;
-      background: #141f0f; color: #cfe0be; font-weight: 700; cursor: pointer; font-size: 0.82rem;
+      padding: 8px 4px; border-radius: 10px; border: 2px solid #537a2b;
+      background: #141f0f; color: #cfe0be; font-weight: 700; cursor: pointer; font-size: 0.78rem;
     }
     .mode-btn.active { background: #4a8a24; border-color: #f7e479; color: #fff; }
+    .mode-btn.rage-opt.active { background: #991b1b; border-color: #fca5a5; color: #fff; }
 
     .btn-primary {
       width: 100%; padding: 11px; border: none; border-radius: 12px;
       background: linear-gradient(180deg, #f0b24d 0%, #d99126 100%);
       color: #1a1a1a; font-size: 1rem; font-weight: 800;
       cursor: pointer; box-shadow: 0 4px 0 #945f12;
+      transition: transform 0.12s;
     }
     .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #945f12; }
     .btn-sec {
@@ -89,7 +92,7 @@
       cursor: pointer; margin-top: 7px;
     }
     .stats-bar {
-      display: flex; justify-content: space-between; font-size: 0.76rem;
+      display: flex; justify-content: space-between; font-size: 0.75rem;
       color: #bfd4aa; margin-top: 9px; padding-top: 7px; border-top: 1px solid #3c542b;
     }
 
@@ -100,15 +103,16 @@
     }
     .hud-pill {
       background: rgba(20, 31, 14, 0.88); border: 2px solid #76a642;
-      border-radius: 10px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700;
+      border-radius: 10px; padding: 6px 10px; font-size: 0.77rem; font-weight: 700;
       line-height: 1.38; color: #f6f4eb; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
-    .hud-sub { display: block; font-size: 0.72rem; color: #f7e479; font-weight: 700; }
+    .hud-sub { display: block; font-size: 0.71rem; color: #f7e479; font-weight: 700; }
     .badge {
       display: inline-block; margin-left: 5px; padding: 1px 6px; border-radius: 6px;
-      background: #3b5923; color: #fff; font-size: 0.69rem;
+      background: #3b5923; color: #fff; font-size: 0.68rem;
     }
     .confuse-badge { background: #9333ea; }
+    .timer-badge { background: #b91c1c; }
     .hud-actions { display: flex; gap: 8px; pointer-events: auto; }
     .icon-btn {
       width: 44px; height: 44px; border-radius: 12px; border: 2px solid #76a642;
@@ -139,6 +143,7 @@
       <span id="hudBiome">Sonnenterrasse</span>
       <span class="badge" id="tierBadge">Einstieg</span>
       <span class="badge" id="rageBadge">Ärger: Ruhig</span>
+      <span class="badge timer-badge hidden" id="timerBadge">Zeit: 25s</span>
       <span class="badge confuse-badge hidden" id="confuseBadge">VERDREHT</span>
     </span>
   </div>
@@ -154,7 +159,7 @@
 <div id="menuOverlay" class="overlay">
   <div class="card">
     <h1>BÄUME HASSEN DICH</h1>
-    <p class="sub">2.5D-Diorama · 100 Level · Leicht bis Fast Unmöglich</p>
+    <p class="sub">Version 6 · 2.5D-Diorama · 100 Level · Rage-Mode</p>
 
     <div class="preview-wrap">
       <canvas id="charPreview" width="156" height="168"></canvas>
@@ -213,8 +218,9 @@
     </div>
 
     <div class="mode-row">
-      <button class="mode-btn active" id="modeNormal">Normal (Fortschritt)</button>
-      <button class="mode-btn" id="modeChallenge">Challenge (1 Leben)</button>
+      <button class="mode-btn active" id="modeNormal">Normal</button>
+      <button class="mode-btn" id="modeChallenge">Challenge</button>
+      <button class="mode-btn rage-opt" id="modeRage">RAGE-MODE</button>
     </div>
     <button class="btn-primary" id="btnStart">Spaziergang starten</button>
     <div class="stats-bar">
@@ -236,9 +242,9 @@
   </div>
 </div>
 
-<!-- Level Complete Overlay -->
+<!-- Level Complete Overlay (also used for Fake-Win Troll!) -->
 <div id="levelWinOverlay" class="overlay hidden">
-  <div class="card">
+  <div class="card" id="winCard">
     <h1 id="winTitle">LEVEL 1 ÜBERLEBT</h1>
     <p class="sub" id="winStats">Zeit: 00:00.0 · Tode: 0</p>
     <button class="btn-primary" id="btnNextLevel">Weiter zu Level 2</button>
@@ -267,6 +273,7 @@
   const hudBiome = document.getElementById('hudBiome');
   const tierBadge = document.getElementById('tierBadge');
   const rageBadge = document.getElementById('rageBadge');
+  const timerBadge = document.getElementById('timerBadge');
   const confuseBadge = document.getElementById('confuseBadge');
   const toastEl = document.getElementById('toast');
   const menuOverlay = document.getElementById('menuOverlay');
@@ -283,13 +290,13 @@
   const optHair = document.getElementById('optHair');
   const modeNormal = document.getElementById('modeNormal');
   const modeChallenge = document.getElementById('modeChallenge');
+  const modeRage = document.getElementById('modeRage');
   const levelSlider = document.getElementById('levelSlider');
   const selectedLevelLabel = document.getElementById('selectedLevelLabel');
   const selectedBiomeLabel = document.getElementById('selectedBiomeLabel');
   const unlockedLabel = document.getElementById('unlockedLabel');
   const totalDeathsLabel = document.getElementById('totalDeathsLabel');
 
-  // 10 Rich Diorama Biomes with ambient particles
   const BIOMES = [
     { name: 'Sonnenterrasse',   grass: '#51a816', grassHi: '#65bf22', cliff: '#bf9a73', cliffDark: '#8c6946', stone: '#90969e', pine: '#52c41a', pineDark: '#368a0c', pineTip: '#78eb2d', ice: false, amb: '#fff8b3' },
     { name: 'Herbst-Terrasse',  grass: '#8f7d1d', grassHi: '#a89425', cliff: '#ad8058', cliffDark: '#7a5637', stone: '#8f8d88', pine: '#d1611b', pineDark: '#99400a', pineTip: '#f08a2e', ice: false, amb: '#f59e0b' },
@@ -351,12 +358,13 @@
   function sfxShot() { playTone(240, 0.11, 'sawtooth', 0.2, -180); }
   function sfxBoom() { playTone(90, 0.28, 'sawtooth', 0.24, -60); }
   function sfxTroll() { playTone(420, 0.12, 'triangle', 0.14, 340); }
+  function sfxSpring() { playTone(220, 0.18, 'sine', 0.18, 480); }
   function sfxWin() {
     [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.16, 'triangle', 0.14), i * 85));
   }
 
   // Save Data
-  const STORAGE_KEY = 'bhd_rage_v5';
+  const STORAGE_KEY = 'bhd_rage_v6';
   let save = {
     hat: 'none', glasses: 'round', shirt: '#2563eb', hair: '#5c361e',
     mode: 'normal', maxUnlocked: 1, selectedLevel: 1, totalDeaths: 0
@@ -393,6 +401,7 @@
     optHair.value = save.hair;
     modeNormal.classList.toggle('active', save.mode === 'normal');
     modeChallenge.classList.toggle('active', save.mode === 'challenge');
+    modeRage.classList.toggle('active', save.mode === 'rage');
     levelSlider.max = save.mode === 'challenge' ? 1 : save.maxUnlocked;
     const lvl = save.mode === 'challenge' ? 1 : Math.min(save.selectedLevel, save.maxUnlocked);
     levelSlider.value = lvl;
@@ -434,7 +443,12 @@
   let ambientMotes = [];
   let smokePuffs = [];
   let spawnPos = { x: 400, y: 1000 };
-  let cabin = { x: 340, y: 120, w: 120, h: 85, runaway: false, ranAway: false, targetY: 120 };
+  let cabin = {
+    x: 340, y: 120, w: 120, h: 85,
+    runaway: false, ranAway: false, targetY: 120,
+    doorArmed: false, doorFired: false,
+    fakeWin: false, fakeWinTriggered: false
+  };
 
   let entities = {
     fallPairs: [],
@@ -448,6 +462,7 @@
     fakeCheckpoints: [],
     mushrooms: [],
     cobbleTraps: [],
+    catapults: [],      // NEW: Reverse catapult cobblestone pads!
     signs: []
   };
 
@@ -474,33 +489,33 @@
   function buildLevel(lvl) {
     currentLevel = lvl;
     currentBiome = getBiome(lvl);
-    const rng = createRng(lvl * 109397 + 5151);
-    // Exponential curve: genuinely easy at Level 1..10, brutal at 45..75, near-impossible at 80..100
+    const rng = createRng(lvl * 112909 + 6161);
+    const isRageMode = (save.mode === 'rage');
     const lin = (lvl - 1) / (MAX_LEVEL - 1);
-    const exp = Math.pow(lin, 1.35);
+    const exp = Math.pow(lin, 1.32);
+    const rageBoost = isRageMode ? 0.18 : 0;
+    const eff = Math.min(1, exp + rageBoost);
     const isBoss = (lvl % 10 === 0);
 
-    const pFallAccel = 3.8 + exp * 10.5;                // 3.8 -> 14.3 rad/s^2
-    const pSnapTime = Math.max(0.13, 0.56 - exp * 0.43);// 0.56s -> 0.13s
-    const pCooldown = Math.max(0.38, 1.55 - exp * 1.17);// 1.55s -> 0.38s
-    const pBulletSpd = 310 + exp * 390;                 // 310 -> 700 px/s
-    const pBurstCount = lvl >= 75 ? 4 : (lvl >= 45 ? 3 : (lvl >= 15 ? 2 : 1));
-    const pChaserSpd = 115 + exp * 84;                  // 115 -> 199 px/s (player = 205!)
-    const pLogSpd = 185 + exp * 310;                    // 185 -> 495 px/s
-    const pBaitSlam = Math.max(0.14, 0.42 - exp * 0.28);// 0.42s -> 0.14s
+    const pFallAccel = 3.8 + eff * 10.5;
+    const pSnapTime = Math.max(0.13, 0.56 - eff * 0.43);
+    const pCooldown = Math.max(0.38, 1.55 - eff * 1.17);
+    const pBulletSpd = 310 + eff * 390;
+    const pBurstCount = (lvl >= 75 || (isRageMode && lvl >= 40)) ? 4 : (lvl >= 45 ? 3 : (lvl >= 15 || isRageMode ? 2 : 1));
+    const pChaserSpd = 115 + eff * 84;
+    const pLogSpd = 185 + eff * 310;
+    const pBaitSlam = Math.max(0.14, 0.42 - eff * 0.28);
 
-    // Segment count: 3 in L1..L5 (approachable) -> up to 12 in L100
     let segCount = Math.min(11, 3 + Math.floor(lvl / 11));
     if (isBoss) segCount += 1;
     if (lvl === 100) segCount = 12;
 
-    // Progressive unlock of troll archetypes
     const pool = ['doublefall', 'revolver', 'fork'];
-    if (lvl >= 4) pool.push('flowerbait');
-    if (lvl >= 7) pool.push('stairslog');
-    if (lvl >= 10) pool.push('chaser');
-    if (lvl >= 14) pool.push('sniper');
-    if (lvl >= 18) pool.push('cobbletrap');
+    if (lvl >= 3 || isRageMode) pool.push('flowerbait');
+    if (lvl >= 6 || isRageMode) pool.push('stairslog');
+    if (lvl >= 9 || isRageMode) pool.push('chaser');
+    if (lvl >= 12 || isRageMode) pool.push('sniper');
+    if (lvl >= 15 || isRageMode) pool.push('cobbletrap');
 
     corridors = [];
     terraces = [];
@@ -511,18 +526,23 @@
     entities = {
       fallPairs: [], revolvers: [], forkAmbushes: [], chasers: [],
       rocks: [], rollingLogs: [], pushLogs: [], flowerBaits: [],
-      fakeCheckpoints: [], mushrooms: [], cobbleTraps: [], signs: []
+      fakeCheckpoints: [], mushrooms: [], cobbleTraps: [], catapults: [], signs: []
     };
 
     // Finish Terrace
     let curY = 340;
-    const hasRunawayCabin = (lvl >= 5 && (isBoss || rng() < (0.25 + exp * 0.65)));
+    const hasRunawayCabin = (lvl >= 5 || isRageMode) && (isBoss || rng() < (0.28 + eff * 0.6));
+    const hasDoorGun = (lvl >= 4 || isRageMode) && (isBoss || rng() < 0.55);
+    const hasFakeWin = (lvl >= 7 || isRageMode) && (isBoss || rng() < 0.35);
+
     corridors.push({ x: 200, y: 55, w: 400, h: 345 });
     terraces.push({ x: 140, y: 40, w: 520, h: 330, cliffH: 38 });
     cobblePaths.push({ x: 372, y: 120, w: 56, h: 250 });
     cabin = {
       x: 340, y: hasRunawayCabin ? 215 : 85, w: 120, h: 85,
-      runaway: hasRunawayCabin, ranAway: false, targetY: 80
+      runaway: hasRunawayCabin, ranAway: false, targetY: 80,
+      doorArmed: hasDoorGun, doorFired: false,
+      fakeWin: hasFakeWin, fakeWinTriggered: false
     };
     if (hasRunawayCabin) {
       entities.revolvers.push({
@@ -533,12 +553,9 @@
     }
 
     for (let s = 0; s < segCount; s++) {
-      let kind;
-      if (lvl === 1) {
-        kind = ['doublefall', 'revolver', 'fork'][s % 3];
-      } else {
-        kind = pool[Math.floor(rng() * pool.length)];
-      }
+      let kind = (lvl === 1 && !isRageMode)
+        ? ['doublefall', 'revolver', 'fork'][s % 3]
+        : pool[Math.floor(rng() * pool.length)];
 
       const segH = 420;
       const topY = curY;
@@ -551,7 +568,7 @@
       if (kind === 'fork') {
         const trapRight = rng() > 0.5;
         const signLies = rng() > 0.5;
-        const signFlips = lvl >= 12 && rng() < (0.25 + exp * 0.45);
+        const signFlips = (lvl >= 10 || isRageMode) && rng() < (0.3 + eff * 0.45);
         const safeSideText = trapRight ? 'LINKS = SICHER' : 'RECHTS = SICHER';
         const trapSideText = trapRight ? 'RECHTS = SICHER' : 'LINKS = SICHER';
 
@@ -565,7 +582,7 @@
         cobblePaths.push({ x: 215, y: topY + 12, w: 370, h: 46 });
 
         entities.forkAmbushes.push({
-          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 80 + exp * 22
+          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 80 + eff * 22
         });
         entities.signs.push({
           x: 400, y: botY - 45,
@@ -593,7 +610,7 @@
           const firstRight = rng() > 0.4;
           entities.fallPairs.push({
             triggerY: midY + 80, triggered: false,
-            secondDelay: Math.max(0.12, 0.32 - exp * 0.20),
+            secondDelay: Math.max(0.12, 0.32 - eff * 0.20),
             p1: {
               x: firstRight ? cx + w - 12 : cx + 12, y: midY + 45, dir: firstRight ? -1 : 1,
               falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 118
@@ -604,7 +621,7 @@
             }
           });
         } else if (kind === 'revolver') {
-          const count = lvl <= 6 ? 1 : (lvl >= 50 ? 3 : 2);
+          const count = (lvl <= 6 && !isRageMode) ? 1 : (lvl >= 50 ? 3 : 2);
           for (let k = 0; k < count; k++) {
             const rightSide = (k % 2 === 0);
             entities.revolvers.push({
@@ -636,17 +653,25 @@
           entities.flowerBaits.push({
             x: 400 + (rng() - 0.5) * 90, y: midY,
             type: isAxe ? 'axe' : 'flower',
-            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 66 + exp * 18
+            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 66 + eff * 18
           });
-          if (lvl >= 20) {
+          if (lvl >= 16 || isRageMode) {
             entities.mushrooms.push({
               x: 400 + (rng() > 0.5 ? 72 : -72), y: midY + 75, r: 16, used: false
             });
           }
         } else if (kind === 'chaser') {
           const rockY = topY + 125;
-          entities.rocks.push({ x: 308, y: rockY, r: 46 });
-          entities.rocks.push({ x: 492, y: rockY, r: 46 });
+          // NEW: Impostor Rock that shifts sideways slightly when player approaches!
+          const impostorSide = (lvl >= 12 || isRageMode) ? (rng() > 0.5 ? 1 : 0) : -1;
+          entities.rocks.push({
+            x: 308, baseX: 308, y: rockY, r: 46,
+            impostor: impostorSide === 0, shifted: false, shiftDir: 1
+          });
+          entities.rocks.push({
+            x: 492, baseX: 492, y: rockY, r: 46,
+            impostor: impostorSide === 1, shifted: false, shiftDir: -1
+          });
           entities.chasers.push({
             x: 335, y: botY - 85, active: false, stuck: false,
             speed: pChaserSpd, r: 22, wakeY: botY - 115, topLimitY: rockY - 45
@@ -664,10 +689,16 @@
             burstLeft: 0, burstMax: pBurstCount
           });
         }
+
+        // NEW: Reverse Catapult Plate on cobblestone path (starting Level 6 or Rage-Mode)
+        if ((lvl >= 6 || isRageMode) && rng() < 0.35 && kind !== 'cobbletrap') {
+          entities.catapults.push({
+            x: 400, y: topY + 70, w: 46, h: 28, cooldown: 0
+          });
+        }
       }
 
-      // Fake Green Checkpoints starting at Level 8
-      if (lvl >= 8 && s === Math.floor(segCount / 2) && kind !== 'fork' && kind !== 'stairslog') {
+      if ((lvl >= 8 || isRageMode) && s === Math.floor(segCount / 2) && kind !== 'fork' && kind !== 'stairslog') {
         entities.fakeCheckpoints.push({
           x: 400 + (rng() > 0.5 ? 65 : -65), y: botY - 35,
           triggered: false, exploded: false, fuse: 0, maxFuse: pBaitSlam
@@ -689,7 +720,6 @@
     cobblePaths.push({ x: 372, y: curY - 10, w: 56, h: 170 });
     spawnPos = { x: 400, y: curY + 145 };
 
-    // Decorative Pines strictly outside corridors
     const maxY = curY + 320;
     for (let y = 30; y <= maxY; y += 64) {
       for (let x = 20; x <= 780; x += 66) {
@@ -701,7 +731,6 @@
       }
     }
 
-    // Ambient biome motes
     ambientMotes = [];
     for (let i = 0; i < 28; i++) {
       ambientMotes.push({
@@ -713,7 +742,7 @@
   }
 
   // Runtime State
-  let state = 'menu';
+  let state = 'menu'; // menu, playing, dead, paused, fakewin, levelwin
   let levelTime = 0;
   let levelDeaths = 0;
   let hitStop = 0;
@@ -722,6 +751,12 @@
   let deathPos = { x: 400, y: 400 };
   let confuseTimer = 0;
   let smokeTimer = 0;
+  let fakeClickTimer = 4.5;
+  let sabotageTimer = 7.0;
+  let rageTimer = 30;
+  let rageWall = { active: false, y: 5000 };
+  let fakeWinTimer = 0;
+  let nextBtnDodged = false;
   let camera = { x: 400, y: 1000, shake: 0, zoom: 1 };
   let bullets = [];
   let particles = [];
@@ -730,6 +765,10 @@
     x: 400, y: 1000, vx: 0, vy: 0, r: 13,
     walkCycle: 0, alive: true, ragdollRot: 0, ragdollSpin: 0, glasses: null
   };
+
+  function isRageActive() {
+    return save.mode === 'rage' || levelDeaths >= 5;
+  }
 
   function startLevel(lvl, resetTimer = true) {
     initAudio();
@@ -744,6 +783,13 @@
     player.glasses = null;
     confuseTimer = 0;
     confuseBadge.classList.add('hidden');
+    fakeClickTimer = 3.5 + Math.random() * 3.5;
+    sabotageTimer = 6.5 + Math.random() * 4.0;
+    rageTimer = Math.max(18, 12 + corridors.length * 2.1);
+    rageWall = { active: false, y: spawnPos.y + 180 };
+    if (save.mode === 'rage') timerBadge.classList.remove('hidden');
+    else timerBadge.classList.add('hidden');
+
     if (resetTimer) { levelTime = 0; levelDeaths = 0; }
     hitStop = 0;
     camera.x = player.x; camera.y = player.y - 55;
@@ -752,12 +798,14 @@
     menuOverlay.classList.add('hidden');
     pauseOverlay.classList.add('hidden');
     levelWinOverlay.classList.add('hidden');
+    btnNextLevel.style.transform = '';
+    nextBtnDodged = false;
     hud.classList.remove('hidden');
     const tier = getDifficultyTier(lvl);
-    tierBadge.textContent = tier.label;
-    tierBadge.style.background = tier.bg;
+    tierBadge.textContent = save.mode === 'rage' ? 'RAGE-MODE' : tier.label;
+    tierBadge.style.background = save.mode === 'rage' ? '#991b1b' : tier.bg;
     updateRageHUD();
-    showToast(`Level ${lvl}/100 · ${currentBiome.name} (${tier.label})`);
+    showToast(`Level ${lvl}/100 · ${currentBiome.name}`);
   }
 
   function updateRageHUD() {
@@ -777,10 +825,14 @@
     persistSave();
     updateRageHUD();
     sfxHit();
-    camera.shake = 15;
+    camera.shake = isRageActive() ? 20 : 15;
     camera.zoom = 1.15;
     deathPos = { x: player.x, y: player.y - 36 };
-    deathLine = customLine || 'Vertrauen ist gut. Baum ist besser.';
+    if (levelDeaths >= 10 && Math.random() < 0.45) {
+      deathLine = `Tod Nr. ${levelDeaths} in diesem Level. Stark.`;
+    } else {
+      deathLine = customLine || 'Vertrauen ist gut. Baum ist besser.';
+    }
 
     const len = Math.hypot(knockX, knockY) || 1;
     player.vx = (knockX / len) * 310;
@@ -862,6 +914,7 @@
   optHair.onchange = () => { save.hair = optHair.value; persistSave(); };
   modeNormal.onclick = () => { save.mode = 'normal'; persistSave(); };
   modeChallenge.onclick = () => { save.mode = 'challenge'; persistSave(); };
+  modeRage.onclick = () => { save.mode = 'rage'; persistSave(); };
   levelSlider.oninput = () => { save.selectedLevel = parseInt(levelSlider.value, 10); persistSave(); };
   document.getElementById('btnLvlMinus').onclick = () => { save.selectedLevel = Math.max(1, save.selectedLevel - 1); persistSave(); };
   document.getElementById('btnLvlPlus').onclick = () => { save.selectedLevel = Math.min(save.maxUnlocked, save.selectedLevel + 1); persistSave(); };
@@ -878,9 +931,22 @@
   document.getElementById('btnToMenu').onclick = () => {
     state = 'menu'; pauseOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
-  btnNextLevel.onclick = () => startLevel(currentLevel < MAX_LEVEL ? currentLevel + 1 : 1, true);
-  document.getElementById('btnReplayLevel').onclick = () => startLevel(currentLevel, true);
+
+  // NEW: Dodging "Weiter" Button in Rage-Mode!
+  btnNextLevel.onclick = () => {
+    if (state === 'fakewin') return;
+    if (isRageActive() && !nextBtnDodged) {
+      nextBtnDodged = true;
+      sfxTroll();
+      btnNextLevel.style.transform = 'translateX(36px) rotate(3deg)';
+      showToast('Zu langsam! Nochmal tippen.');
+      return;
+    }
+    startLevel(currentLevel < MAX_LEVEL ? currentLevel + 1 : 1, true);
+  };
+  document.getElementById('btnReplayLevel').onclick = () => { if (state !== 'fakewin') startLevel(currentLevel, true); };
   document.getElementById('btnWinMenu').onclick = () => {
+    if (state === 'fakewin') return;
     state = 'menu'; levelWinOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
 
@@ -902,16 +968,34 @@
   }
 
   function update(dt) {
-    // Cabin chimney smoke
     smokeTimer -= dt;
     if (smokeTimer <= 0) {
       smokeTimer = 0.35;
       smokePuffs.push({ x: cabin.x + cabin.w - 22, y: cabin.y - 12, r: 5, life: 1.4 });
     }
     for (let i = smokePuffs.length - 1; i >= 0; i--) {
-      const sp = smokePuffs[i];
-      sp.y -= 24 * dt; sp.x += 8 * dt; sp.r += 7 * dt; sp.life -= dt;
+      const sp = smokePuffs[i]; sp.y -= 24 * dt; sp.x += 8 * dt; sp.r += 7 * dt; sp.life -= dt;
       if (sp.life <= 0) smokePuffs.splice(i, 1);
+    }
+
+    // NEW: Fake-Win Smash Countdown!
+    if (state === 'fakewin') {
+      fakeWinTimer -= dt;
+      if (fakeWinTimer <= 0) {
+        levelWinOverlay.classList.add('hidden');
+        hud.classList.remove('hidden');
+        state = 'playing';
+        camera.shake = 18;
+        sfxBoom();
+        showToast('FAKE-SIEG! Lauf noch einmal!');
+        // Knock player down slightly and fire a final burst from cabin!
+        player.y = cabin.y + cabin.h + 55;
+        const cx = cabin.x + cabin.w / 2;
+        for (let k = -1; k <= 1; k++) {
+          bullets.push({ x: cx, y: cabin.y + cabin.h, vx: k * 95, vy: 390, r: 6, life: 1.8 });
+        }
+      }
+      return;
     }
 
     if (hitStop > 0) { hitStop -= dt; return; }
@@ -939,6 +1023,44 @@
     if (state !== 'playing') return;
     levelTime += dt;
 
+    // NEW: Rage-Mode Timer & Chaser Wall from behind
+    if (save.mode === 'rage') {
+      rageTimer = Math.max(0, rageTimer - dt);
+      timerBadge.textContent = `Zeit: ${Math.ceil(rageTimer)}s`;
+      if (rageTimer <= 0 && !rageWall.active) {
+        rageWall.active = true;
+        rageWall.y = player.y + 230;
+        sfxBoom();
+        showToast('ZEIT ABGELAUFEN! Tannen-Wand kommt!');
+      }
+      if (rageWall.active) {
+        rageWall.y -= 178 * dt;
+        if (player.y > rageWall.y - 26) {
+          killPlayer('Von der Tannen-Wand überrollt!', 0, -1);
+        }
+      }
+    }
+
+    // NEW: Audio-Finte (Fake Click-Clack without shot in higher levels / Rage-Mode)
+    if (currentLevel >= 12 || isRageActive()) {
+      fakeClickTimer -= dt;
+      if (fakeClickTimer <= 0) {
+        fakeClickTimer = 4.5 + Math.random() * 5.0;
+        sfxClickClack();
+      }
+    }
+
+    // NEW: Sudden 1.5s Input Sabotage in Rage-Mode (or Level >= 30)
+    if (save.mode === 'rage' || (currentLevel >= 30 && isRageActive())) {
+      sabotageTimer -= dt;
+      if (sabotageTimer <= 0) {
+        sabotageTimer = 8.5 + Math.random() * 5.5;
+        confuseTimer = 1.5;
+        confuseBadge.classList.remove('hidden');
+        sfxTroll();
+      }
+    }
+
     if (confuseTimer > 0) {
       confuseTimer -= dt;
       if (confuseTimer <= 0) confuseBadge.classList.add('hidden');
@@ -964,6 +1086,18 @@
     const ny = player.y + player.vy * dt;
     if (isCircleWalkable(nx, player.y, player.r)) player.x = nx; else player.vx = 0;
     if (isCircleWalkable(player.x, ny, player.r)) player.y = ny; else player.vy = 0;
+
+    // NEW: Reverse Catapult Plates
+    for (const cat of entities.catapults) {
+      if (cat.cooldown > 0) cat.cooldown -= dt;
+      if (cat.cooldown <= 0 && circleRectHit(player.x, player.y, player.r, cat.x - cat.w / 2, cat.y - cat.h / 2, cat.w, cat.h)) {
+        cat.cooldown = 1.2;
+        player.vy = 520;
+        sfxSpring();
+        camera.shake = 7;
+        showToast('Katapult-Platte!');
+      }
+    }
 
     for (const sg of entities.signs) {
       if (sg.flips && !sg.flipped && Math.hypot(player.x - sg.x, player.y - sg.y) < 115) {
@@ -1007,8 +1141,7 @@
         } else if (rv.state === 'snap') {
           rv.timer -= dt;
           if (rv.timer <= 0) {
-            // Predictive lead aim in Rage Mode (Level >= 65)
-            const lead = currentLevel >= 65 ? 0.14 : 0;
+            const lead = (currentLevel >= 65 || save.mode === 'rage') ? 0.14 : 0;
             const tx = player.x + player.vx * lead;
             const ty = player.y + player.vy * lead;
             const ang = Math.atan2(ty - rv.y, tx - rv.x);
@@ -1018,6 +1151,7 @@
               r: 5.5, life: 2.0
             });
             rv.flashT = 0.07; sfxShot();
+            if (isRageActive()) camera.shake = Math.max(camera.shake, 4);
             rv.burstLeft--;
             if (rv.burstLeft > 0) rv.timer = 0.13;
             else { rv.state = 'idle'; rv.cooldown = rv.baseCooldown; }
@@ -1038,10 +1172,19 @@
       }
     }
 
+    // NEW: Impostor Rocks shift sideways by 28px (narrowing gap, still passable!)
     for (const rk of entities.rocks) {
+      if (rk.impostor && !rk.shifted && Math.abs(player.y - rk.y) < 95) {
+        rk.shifted = true; sfxTroll();
+      }
+      if (rk.shifted) {
+        const targetX = rk.baseX + rk.shiftDir * 28;
+        rk.x += (targetX - rk.x) * Math.min(1, 9 * dt);
+      }
       const res = resolveCircleObstacle(player.x, player.y, player.r, rk.x, rk.y, rk.r);
       if (isCircleWalkable(res.x, res.y, player.r)) { player.x = res.x; player.y = res.y; }
     }
+
     for (const ch of entities.chasers) {
       if (!ch.active && player.y < ch.wakeY && player.y > ch.topLimitY) { ch.active = true; sfxClickClack(); }
       if (ch.active && !ch.stuck) {
@@ -1133,11 +1276,22 @@
       }
     }
 
-    if (cabin.runaway && !cabin.ranAway && Math.hypot(player.x - (cabin.x + cabin.w / 2), player.y - (cabin.y + cabin.h)) < 85) {
+    // Cabin Runaway & NEW Revolver-Door Gag
+    const distCabin = Math.hypot(player.x - (cabin.x + cabin.w / 2), player.y - (cabin.y + cabin.h));
+    if (cabin.runaway && !cabin.ranAway && distCabin < 90) {
       cabin.ranAway = true; sfxTroll(); showToast('Die Hütte haut ab!');
     }
     if (cabin.ranAway && cabin.y > cabin.targetY) {
       cabin.y = Math.max(cabin.targetY, cabin.y - 340 * dt);
+    }
+    if (cabin.doorArmed && !cabin.doorFired && (!cabin.runaway || cabin.y <= cabin.targetY + 5) && distCabin < 105) {
+      cabin.doorFired = true;
+      sfxShot();
+      const ang = Math.atan2(player.y - (cabin.y + cabin.h - 15), player.x - (cabin.x + cabin.w / 2));
+      bullets.push({
+        x: cabin.x + cabin.w / 2, y: cabin.y + cabin.h - 10,
+        vx: Math.cos(ang) * 420, vy: Math.sin(ang) * 420, r: 6, life: 1.5
+      });
     }
 
     for (let i = bullets.length - 1; i >= 0; i--) {
@@ -1153,7 +1307,21 @@
       if (b.life <= 0) bullets.splice(i, 1);
     }
 
+    // Cabin Finish Check (with NEW Fake-Win Troll!)
     if ((!cabin.runaway || cabin.y <= cabin.targetY + 5) && circleRectHit(player.x, player.y, player.r, cabin.x, cabin.y + 35, cabin.w, cabin.h - 15)) {
+      if (cabin.fakeWin && !cabin.fakeWinTriggered) {
+        cabin.fakeWinTriggered = true;
+        state = 'fakewin';
+        fakeWinTimer = 0.8;
+        sfxWin();
+        hud.classList.add('hidden');
+        winTitle.textContent = `LEVEL ${currentLevel} ÜBERLEBT`;
+        winStats.textContent = `${currentBiome.name} · Zeit: ${formatTime(levelTime)} · Tode: ${levelDeaths}`;
+        btnNextLevel.textContent = `Weiter zu Level ${currentLevel + 1}`;
+        levelWinOverlay.classList.remove('hidden');
+        return;
+      }
+
       state = 'levelwin'; sfxWin();
       if (currentLevel < MAX_LEVEL && currentLevel + 1 > save.maxUnlocked) save.maxUnlocked = currentLevel + 1;
       save.selectedLevel = Math.min(MAX_LEVEL, currentLevel + 1);
@@ -1171,7 +1339,7 @@
     hudBiome.textContent = currentBiome.name;
   }
 
-  // Polished 2.5D Diorama Drawing Helpers
+  // Drawing Helpers
   function drawLowPolyPine(c, x, y, scale = 1, angle = 0, showGun = false, gunSide = -1, flash = false, sway = 0) {
     c.save(); c.translate(x, y); c.scale(scale, scale);
     c.fillStyle = 'rgba(0, 0, 0, 0.27)';
@@ -1179,13 +1347,10 @@
     c.rotate(angle + sway);
     c.fillStyle = '#5c3a1e'; c.fillRect(-7, -14, 14, 18);
     const p1 = currentBiome.pine; const p2 = currentBiome.pineDark; const p3 = currentBiome.pineTip;
-    // Bottom tier
     c.fillStyle = p1; c.beginPath(); c.moveTo(0, -56); c.lineTo(-33, -10); c.lineTo(33, -10); c.closePath(); c.fill();
     c.fillStyle = p2; c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(33, -10); c.closePath(); c.fill();
-    // Middle tier
     c.fillStyle = p1; c.beginPath(); c.moveTo(0, -76); c.lineTo(-27, -34); c.lineTo(27, -34); c.closePath(); c.fill();
     c.fillStyle = p2; c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(27, -34); c.closePath(); c.fill();
-    // Top tip with sunlit left facet
     c.fillStyle = p3; c.beginPath(); c.moveTo(0, -96); c.lineTo(-18, -56); c.lineTo(18, -56); c.closePath(); c.fill();
     c.fillStyle = p1; c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(18, -56); c.closePath(); c.fill();
     if (showGun) {
@@ -1251,15 +1416,12 @@
       const off = ((Math.floor(sy / 18) % 2) * 14);
       for (let sx = x + off; sx < x + w; sx += 24) {
         ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, Math.min(y + h, sy + 18)); ctx.stroke();
-        // Subtle sunlit top bevel on stone
-        ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        ctx.fillRect(sx + 2, sy + 2, 18, 3);
+        ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(sx + 2, sy + 2, 18, 3);
       }
     }
   }
 
   function drawStairs(x, y, w, h) {
-    // Drop shadow beside stairs
     ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(x - 10, y + 4, w + 14, h + 4);
     ctx.fillStyle = '#8c6239'; ctx.fillRect(x, y, w, h);
     ctx.fillStyle = '#6e4a28';
@@ -1322,24 +1484,26 @@
     ctx.scale(camera.zoom, camera.zoom);
     ctx.translate(-camera.x, -camera.y);
 
-    // 1. Terraces with Ambient Occlusion cliff shadows
     for (const tr of terraces) {
-      // AO shadow below cliff
-      ctx.fillStyle = 'rgba(0,0,0,0.22)';
-      ctx.fillRect(tr.x - 8, tr.y + tr.h + tr.cliffH - 2, tr.w + 16, 14);
-      // Cliff front wall
+      ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.fillRect(tr.x - 8, tr.y + tr.h + tr.cliffH - 2, tr.w + 16, 14);
       ctx.fillStyle = currentBiome.cliff; ctx.fillRect(tr.x, tr.y + tr.h - 6, tr.w, tr.cliffH + 6);
       ctx.fillStyle = currentBiome.cliffDark;
       for (let fx = tr.x + 35; fx < tr.x + tr.w - 20; fx += 75) ctx.fillRect(fx, tr.y + tr.h - 4, 24, tr.cliffH + 4);
-      // Grass plateau
       ctx.fillStyle = currentBiome.grass; ctx.fillRect(tr.x, tr.y, tr.w, tr.h);
       ctx.fillStyle = currentBiome.grassHi; ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 12);
-      // Lip highlight above cliff
       ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fillRect(tr.x, tr.y + tr.h - 8, tr.w, 4);
     }
 
     for (const cp of cobblePaths) drawCobbleRect(cp.x, cp.y, cp.w, cp.h);
     for (const st of stairVisuals) drawStairs(st.x, st.y, st.w, st.h);
+
+    // Subtle Catapult Plates
+    for (const cat of entities.catapults) {
+      ctx.fillStyle = 'rgba(230, 162, 60, 0.25)';
+      ctx.fillRect(cat.x - cat.w / 2, cat.y - cat.h / 2, cat.w, cat.h);
+      ctx.strokeStyle = 'rgba(40,40,40,0.45)'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(cat.x - cat.w / 2, cat.y - cat.h / 2, cat.w, cat.h);
+    }
 
     ctx.fillStyle = '#317d0a';
     for (const gt of grassTufts) {
@@ -1433,26 +1597,27 @@
       });
     }
 
-    // Cabin with chimney, planks, warm window & animated smoke
+    // Rage-Mode Chaser Pine Wall
+    if (rageWall.active) {
+      for (let wx = 180; wx <= 620; wx += 55) {
+        drawables.push({ y: rageWall.y, fn: () => drawLowPolyPine(ctx, wx, rageWall.y, 1.2, 0) });
+      }
+    }
+
     drawables.push({
       y: cabin.y + cabin.h, fn: () => {
         ctx.fillStyle = 'rgba(0,0,0,0.28)'; ctx.fillRect(cabin.x - 10, cabin.y + 32, cabin.w + 14, cabin.h - 22);
-        // Chimney
         ctx.fillStyle = '#6e5244'; ctx.fillRect(cabin.x + cabin.w - 30, cabin.y - 16, 16, 26);
-        // Smoke
         for (const sp of smokePuffs) {
           ctx.fillStyle = `rgba(240,240,240,${Math.max(0, sp.life * 0.45)})`;
           ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2); ctx.fill();
         }
-        // Walls
         ctx.fillStyle = '#8b5a2b'; ctx.strokeStyle = '#2b180a'; ctx.lineWidth = 3.5;
         ctx.fillRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25); ctx.strokeRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
-        // Roof
         ctx.fillStyle = currentLevel === MAX_LEVEL ? '#eab308' : '#b3382c';
         ctx.beginPath(); ctx.moveTo(cabin.x - 14, cabin.y + 28); ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
         ctx.lineTo(cabin.x + cabin.w + 14, cabin.y + 28); ctx.closePath(); ctx.fill(); ctx.stroke();
-        // Door & Warm Window
-        ctx.fillStyle = '#f7e479';
+        ctx.fillStyle = cabin.doorFired ? '#2b180a' : '#f7e479';
         ctx.fillRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38); ctx.strokeRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
         ctx.fillStyle = '#fde047'; ctx.fillRect(cabin.x + 14, cabin.y + 42, 18, 16); ctx.strokeRect(cabin.x + 14, cabin.y + 42, 18, 16);
       }
@@ -1486,21 +1651,23 @@
 
     ctx.restore();
 
-    // Screen-space Ambient Particles & Soft Sunlight Vignette
+    // Ambient Motes & Rage-Mode Red Vignette
     ctx.save();
     for (const m of ambientMotes) {
-      m.x = (m.x + m.vx * 0.016 + w) % w;
-      m.y = (m.y + m.vy * 0.016 + h) % h;
-      ctx.globalAlpha = m.alpha;
-      ctx.fillStyle = currentBiome.amb;
+      m.x = (m.x + m.vx * 0.016 + w) % w; m.y = (m.y + m.vy * 0.016 + h) % h;
+      ctx.globalAlpha = m.alpha; ctx.fillStyle = isRageActive() ? '#ff5555' : currentBiome.amb;
       ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
-    const vig = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.78);
-    vig.addColorStop(0, 'rgba(255,255,220,0.03)');
-    vig.addColorStop(1, 'rgba(0,0,0,0.32)');
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, w, h);
+    const vig = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.34, w / 2, h / 2, Math.max(w, h) * 0.78);
+    if (isRageActive()) {
+      vig.addColorStop(0, 'rgba(180,0,0,0.04)');
+      vig.addColorStop(1, 'rgba(120,0,0,0.44)');
+    } else {
+      vig.addColorStop(0, 'rgba(255,255,220,0.03)');
+      vig.addColorStop(1, 'rgba(0,0,0,0.32)');
+    }
+    ctx.fillStyle = vig; ctx.fillRect(0, 0, w, h);
     ctx.restore();
 
     if (joy.active && state === 'playing') {
