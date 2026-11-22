@@ -3,82 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#1e3524">
+  <meta name="theme-color" content="#2d5a17">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Bäume hassen dich – 100 Level</title>
+  <title>Bäume hassen dich – Troll-Edition</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-      background: #142619; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-      touch-action: none; color: #f4f1e6;
+      background: #2b4d16; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      touch-action: none; color: #f6f4eb;
     }
-    canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    canvas#game { display: block; width: 100%; height: 100%; touch-action: none; }
 
     .overlay {
       position: fixed; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 14px;
-      background: rgba(14, 26, 18, 0.9); backdrop-filter: blur(4px); z-index: 20;
+      align-items: center; justify-content: center; padding: 12px;
+      background: rgba(18, 28, 12, 0.86); backdrop-filter: blur(5px); z-index: 20;
       overflow-y: auto;
     }
     .hidden { display: none !important; }
     .card {
-      background: #233b29; border: 3px solid #4c7554; border-radius: 16px;
-      padding: 16px 18px; width: 100%; max-width: 450px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+      background: #27381f; border: 3px solid #6b963b; border-radius: 18px;
+      padding: 15px 18px; width: 100%; max-width: 450px;
+      box-shadow: 0 14px 36px rgba(0,0,0,0.6);
     }
-    h1 { margin: 0 0 4px; font-size: 1.48rem; text-align: center; color: #f6e27f; letter-spacing: 0.4px; }
-    .sub { text-align: center; font-size: 0.85rem; color: #c7d9c9; margin: 0 0 12px; }
-    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-    .field label { display: block; font-size: 0.76rem; color: #b7ceb9; margin-bottom: 3px; }
-    .field select, .field input {
-      width: 100%; padding: 7px 9px; border-radius: 8px; border: 2px solid #4c7554;
-      background: #17291c; color: #f4f1e6; font-size: 0.88rem; font-weight: 600;
+    h1 { margin: 0 0 2px; font-size: 1.44rem; text-align: center; color: #f7e479; letter-spacing: 0.4px; }
+    .sub { text-align: center; font-size: 0.82rem; color: #cfe0be; margin: 0 0 10px; }
+
+    .preview-wrap {
+      display: flex; align-items: center; gap: 12px; background: #1d2b16;
+      border: 2px solid #537a2b; border-radius: 12px; padding: 8px 10px; margin-bottom: 10px;
     }
+    #charPreview {
+      width: 78px; height: 84px; border-radius: 10px; background: #4e9e14;
+      border: 2px solid #84bd3c; flex-shrink: 0;
+    }
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; flex: 1; }
+    .field label { display: block; font-size: 0.72rem; color: #bfd4aa; margin-bottom: 2px; }
+    .field select {
+      width: 100%; padding: 5px 7px; border-radius: 7px; border: 2px solid #537a2b;
+      background: #172312; color: #f6f4eb; font-size: 0.82rem; font-weight: 600;
+    }
+
     .level-box {
-      background: #17291c; border: 2px solid #4c7554; border-radius: 10px;
-      padding: 9px 11px; margin-bottom: 10px;
+      background: #1d2b16; border: 2px solid #537a2b; border-radius: 10px;
+      padding: 8px 10px; margin-bottom: 10px;
     }
-    .level-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .level-row span { font-size: 0.84rem; font-weight: 700; color: #f6e27f; }
-    .level-row small { font-size: 0.76rem; color: #b7ceb9; }
+    .level-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .level-row span { font-size: 0.83rem; font-weight: 700; color: #f7e479; }
+    .level-row small { font-size: 0.75rem; color: #bfd4aa; }
     .level-controls { display: flex; gap: 6px; align-items: center; }
     .mini-btn {
-      padding: 6px 10px; border-radius: 8px; border: 2px solid #4c7554;
-      background: #233b29; color: #f4f1e6; font-weight: 800; cursor: pointer; font-size: 0.85rem;
+      padding: 5px 10px; border-radius: 8px; border: 2px solid #537a2b;
+      background: #27381f; color: #f6f4eb; font-weight: 800; cursor: pointer;
     }
-    .mini-btn:active { background: #365c3e; }
-    input[type="range"] { flex: 1; accent-color: #e09f3e; padding: 0; border: none; }
+    input[type="range"] { flex: 1; accent-color: #e6a23c; }
 
-    .mode-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .mode-row { display: flex; gap: 8px; margin-bottom: 11px; }
     .mode-btn {
-      flex: 1; padding: 8px; border-radius: 10px; border: 2px solid #4c7554;
-      background: #17291c; color: #cde0cf; font-weight: 700; cursor: pointer; font-size: 0.84rem;
+      flex: 1; padding: 8px; border-radius: 10px; border: 2px solid #537a2b;
+      background: #172312; color: #cfe0be; font-weight: 700; cursor: pointer; font-size: 0.82rem;
     }
-    .mode-btn.active { background: #3f7d4a; border-color: #f6e27f; color: #fff; }
+    .mode-btn.active { background: #4a8a24; border-color: #f7e479; color: #fff; }
+
     .btn-primary {
       width: 100%; padding: 11px; border: none; border-radius: 12px;
-      background: #e09f3e; color: #1a1a1a; font-size: 1.02rem; font-weight: 800;
-      cursor: pointer; box-shadow: 0 4px 0 #9e6a1f;
+      background: #e6a23c; color: #1a1a1a; font-size: 1rem; font-weight: 800;
+      cursor: pointer; box-shadow: 0 4px 0 #a36d1c;
     }
-    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #9e6a1f; }
+    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #a36d1c; }
     .btn-sec {
-      width: 100%; padding: 9px; border: 2px solid #598562; border-radius: 10px;
-      background: #1b3021; color: #f4f1e6; font-size: 0.92rem; font-weight: 700;
-      cursor: pointer; margin-top: 8px;
+      width: 100%; padding: 9px; border: 2px solid #638f39; border-radius: 10px;
+      background: #1d2b16; color: #f6f4eb; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; margin-top: 7px;
     }
-    .btn-trap {
-      width: 100%; padding: 9px; border: 2px solid #b5543c; border-radius: 10px;
-      background: #3d1f19; color: #ffd4c9; font-size: 0.92rem; font-weight: 700;
-      cursor: pointer; margin-top: 8px;
+    .btn-tip {
+      width: 100%; padding: 9px; border: 2px solid #c9a949; border-radius: 10px;
+      background: #332e17; color: #fff0b3; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; margin-top: 7px;
     }
     .stats-bar {
-      display: flex; justify-content: space-between; font-size: 0.78rem;
-      color: #b7ceb9; margin-top: 10px; padding-top: 8px; border-top: 1px solid #38573f;
+      display: flex; justify-content: space-between; font-size: 0.76rem;
+      color: #bfd4aa; margin-top: 9px; padding-top: 7px; border-top: 1px solid #3c542b;
     }
 
     #hud {
@@ -87,26 +97,30 @@
       pointer-events: none; z-index: 10;
     }
     .hud-pill {
-      background: rgba(18, 34, 23, 0.84); border: 2px solid #4c7554;
-      border-radius: 10px; padding: 6px 10px; font-size: 0.8rem; font-weight: 700;
-      line-height: 1.35; color: #f4f1e6;
+      background: rgba(24, 36, 17, 0.86); border: 2px solid #6b963b;
+      border-radius: 10px; padding: 6px 10px; font-size: 0.79rem; font-weight: 700;
+      line-height: 1.35; color: #f6f4eb;
     }
-    .hud-sub { display: block; font-size: 0.72rem; color: #f6e27f; font-weight: 600; }
+    .hud-sub { display: block; font-size: 0.72rem; color: #f7e479; font-weight: 700; }
+    .rage-badge {
+      display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 6px;
+      background: #3b5923; color: #fff; font-size: 0.7rem;
+    }
     .hud-actions { display: flex; gap: 8px; pointer-events: auto; }
     .icon-btn {
-      width: 44px; height: 44px; border-radius: 12px; border: 2px solid #4c7554;
-      background: rgba(18, 34, 23, 0.85); color: #f4f1e6; font-size: 1.2rem;
+      width: 44px; height: 44px; border-radius: 12px; border: 2px solid #6b963b;
+      background: rgba(24, 36, 17, 0.88); color: #f6f4eb; font-size: 1.18rem;
       font-weight: 800; display: flex; align-items: center; justify-content: center;
       cursor: pointer;
     }
-    .icon-btn:active { background: #365c3e; }
+    .icon-btn:active { background: #3f6326; }
 
     #toast {
-      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
-      background: rgba(20, 34, 24, 0.94); border: 2px solid #f6e27f;
-      color: #f6e27f; padding: 7px 15px; border-radius: 999px; font-size: 0.84rem;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(20, 30, 14, 0.94); border: 2px solid #f7e479;
+      color: #f7e479; padding: 7px 14px; border-radius: 999px; font-size: 0.82rem;
       font-weight: 700; z-index: 15; pointer-events: none; opacity: 0;
-      transition: opacity 0.22s; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
+      transition: opacity 0.2s; white-space: nowrap; max-width: 92vw; overflow: hidden; text-overflow: ellipsis;
     }
     #toast.show { opacity: 1; }
   </style>
@@ -118,7 +132,7 @@
 <div id="hud" class="hidden">
   <div class="hud-pill">
     <span id="hudMain">Level 1/100 · 00:00.0 · Tode: 0</span>
-    <span class="hud-sub" id="hudBiome">Picknick-Wald · Gefahr 1%</span>
+    <span class="hud-sub"><span id="hudBiome">Sonnenterrasse</span><span class="rage-badge" id="rageBadge">Ärger: Ruhig</span></span>
   </div>
   <div class="hud-actions">
     <button class="icon-btn" id="btnRestart" title="Neustart (R)">↻</button>
@@ -132,51 +146,56 @@
 <div id="menuOverlay" class="overlay">
   <div class="card">
     <h1>BÄUME HASSEN DICH</h1>
-    <p class="sub">100 Level · 10 Biome · Steigende Schwierigkeit</p>
-    <div class="editor-grid">
-      <div class="field">
-        <label for="optHat">Hut</label>
-        <select id="optHat">
-          <option value="straw">Strohhut</option>
-          <option value="cap">Kappe</option>
-          <option value="helmet">Bauhelm</option>
-          <option value="crown">Krone</option>
-          <option value="none">Kein Hut</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="optGlasses">Brille</label>
-        <select id="optGlasses">
-          <option value="round">Rund</option>
-          <option value="square">Eckig</option>
-          <option value="shades">Sonnenbrille</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="optShirt">Hemdfarbe</label>
-        <select id="optShirt">
-          <option value="#d9534f">Rot</option>
-          <option value="#3b82f6">Blau</option>
-          <option value="#eab308">Gelb</option>
-          <option value="#9333ea">Violett</option>
-          <option value="#f97316">Orange</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="optHair">Haarfarbe</label>
-        <select id="optHair">
-          <option value="#4a2e1b">Braun</option>
-          <option value="#1f1f1f">Schwarz</option>
-          <option value="#d4a74a">Blond</option>
-          <option value="#a63c24">Rotbraun</option>
-        </select>
+    <p class="sub">2.5D-Diorama · Troll-Edition · 100 Level</p>
+
+    <div class="preview-wrap">
+      <canvas id="charPreview" width="156" height="168"></canvas>
+      <div class="editor-grid">
+        <div class="field">
+          <label for="optHat">Hut</label>
+          <select id="optHat">
+            <option value="none">Kein Hut</option>
+            <option value="straw">Strohhut</option>
+            <option value="cap">Kappe</option>
+            <option value="tinfoil">Aluhut</option>
+            <option value="helmet">Bauhelm</option>
+            <option value="crown">Krone</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="optGlasses">Brille</label>
+          <select id="optGlasses">
+            <option value="round">Rund</option>
+            <option value="square">Eckig</option>
+            <option value="shades">Sonnenbrille</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="optShirt">Hemd</label>
+          <select id="optShirt">
+            <option value="#2563eb">Blau (Original)</option>
+            <option value="#d94848">Rot</option>
+            <option value="#eab308">Gelb</option>
+            <option value="#9333ea">Violett</option>
+            <option value="#f97316">Orange</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="optHair">Haare</label>
+          <select id="optHair">
+            <option value="#5c361e">Braun</option>
+            <option value="#1c1c1c">Schwarz</option>
+            <option value="#d6aa49">Blond</option>
+            <option value="#9e3922">Rotbraun</option>
+          </select>
+        </div>
       </div>
     </div>
 
     <div class="level-box">
       <div class="level-row">
         <span id="selectedLevelLabel">Start-Level: 1 / 100</span>
-        <small id="selectedBiomeLabel">Picknick-Wald</small>
+        <small id="selectedBiomeLabel">Sonnenterrasse</small>
       </div>
       <div class="level-controls">
         <button class="mini-btn" id="btnLvlMinus">-</button>
@@ -189,7 +208,7 @@
       <button class="mode-btn active" id="modeNormal">Normal (Fortschritt)</button>
       <button class="mode-btn" id="modeChallenge">Challenge (1 Leben)</button>
     </div>
-    <button class="btn-primary" id="btnStart">Level starten</button>
+    <button class="btn-primary" id="btnStart">Spaziergang starten</button>
     <div class="stats-bar">
       <span id="unlockedLabel">Freigeschaltet: 1/100</span>
       <span id="totalDeathsLabel">Gesamt-Tode: 0</span>
@@ -201,10 +220,10 @@
 <div id="pauseOverlay" class="overlay hidden">
   <div class="card">
     <h1>PAUSE</h1>
-    <p class="sub" id="pauseSub">Level 1 · Kurze Verschnaufpause.</p>
+    <p class="sub" id="pauseSub">Level 1 · Alles völlig harmlos hier.</p>
     <button class="btn-primary" id="btnResume">Weiterspielen</button>
     <button class="btn-sec" id="btnRestartLevel">Level neu starten</button>
-    <button class="btn-trap" id="btnCheckTree">Baum prüfen</button>
+    <button class="btn-tip" id="btnWaldTipp">Wald-Tipp anzeigen</button>
     <button class="btn-sec" id="btnToMenu">Zum Hauptmenü</button>
   </div>
 </div>
@@ -212,7 +231,7 @@
 <!-- Level Complete Overlay -->
 <div id="levelWinOverlay" class="overlay hidden">
   <div class="card">
-    <h1 id="winTitle">LEVEL 1 GESCHAFFT</h1>
+    <h1 id="winTitle">LEVEL 1 ÜBERLEBT</h1>
     <p class="sub" id="winStats">Zeit: 00:00.0 · Tode: 0</p>
     <button class="btn-primary" id="btnNextLevel">Weiter zu Level 2</button>
     <button class="btn-sec" id="btnReplayLevel">Level wiederholen</button>
@@ -231,11 +250,14 @@
   const MAX_LEVEL = 100;
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const prevCanvas = document.getElementById('charPreview');
+  const prevCtx = prevCanvas.getContext('2d');
 
   // UI refs
   const hud = document.getElementById('hud');
   const hudMain = document.getElementById('hudMain');
   const hudBiome = document.getElementById('hudBiome');
+  const rageBadge = document.getElementById('rageBadge');
   const toastEl = document.getElementById('toast');
   const menuOverlay = document.getElementById('menuOverlay');
   const pauseOverlay = document.getElementById('pauseOverlay');
@@ -257,23 +279,36 @@
   const unlockedLabel = document.getElementById('unlockedLabel');
   const totalDeathsLabel = document.getElementById('totalDeathsLabel');
 
-  // 10 Biomes (10 levels each)
+  // 10 Diorama Biomes (starting with exact screenshot palette!)
   const BIOMES = [
-    { name: 'Picknick-Wald',       bg: '#1b3622', path: '#c8ab7c', tree1: '#265c31', tree2: '#1e4d28', ice: false },
-    { name: 'Herbst-Hain',         bg: '#332419', path: '#cfa97a', tree1: '#a84a20', tree2: '#c97a26', ice: false },
-    { name: 'Nebel-Moor',          bg: '#182b29', path: '#99a892', tree1: '#2d544c', tree2: '#22423c', ice: false },
-    { name: 'Kiefern-Schlucht',    bg: '#1d2922', path: '#b89f82', tree1: '#254f3a', tree2: '#1a3b2b', ice: false },
-    { name: 'Scharfschützen-Forst',bg: '#1c241b', path: '#bfa67e', tree1: '#355228', tree2: '#273d1d', ice: false },
-    { name: 'Apfel-Plantage',      bg: '#23361b', path: '#d1b584', tree1: '#3d6e29', tree2: '#2f571f', ice: false },
-    { name: 'Schatten-Dickicht',   bg: '#131722', path: '#8b8e9c', tree1: '#24314a', tree2: '#1a2438', ice: false },
-    { name: 'Winter-Taiga',        bg: '#203240', path: '#d7e6f0', tree1: '#3b6b7a', tree2: '#2c5361', ice: true  },
-    { name: 'Vulkan-Gehölz',       bg: '#291514', path: '#8f7265', tree1: '#69251e', tree2: '#4d1914', ice: false },
-    { name: 'Urwald der Rache',    bg: '#160d1f', path: '#a3899e', tree1: '#3d1c4f', tree2: '#291138', ice: false }
+    { name: 'Sonnenterrasse',     grass: '#4ea314', grassHi: '#5db81d', cliff: '#b9956f', cliffDark: '#8c6b49', stone: '#8d9299', pine: '#52c41a', pineDark: '#368a0c', ice: false },
+    { name: 'Herbst-Terrasse',    grass: '#8a7a1c', grassHi: '#a18f22', cliff: '#a87d56', cliffDark: '#7a5738', stone: '#8d8b86', pine: '#c95e1a', pineDark: '#963f0b', ice: false },
+    { name: 'Moor-Stufen',        grass: '#3b6e4c', grassHi: '#48825b', cliff: '#7a7562', cliffDark: '#575344', stone: '#7a8580', pine: '#2f8a68', pineDark: '#1f6148', ice: false },
+    { name: 'Fels-Schlucht',      grass: '#4b8225', grassHi: '#5a992d', cliff: '#968879', cliffDark: '#6b6054', stone: '#7e838a', pine: '#3ca328', pineDark: '#267317', ice: false },
+    { name: 'Revolver-Hain',      grass: '#478f19', grassHi: '#57a822', cliff: '#ad8963', cliffDark: '#806243', stone: '#868c94', pine: '#4ab818', pineDark: '#31820c', ice: false },
+    { name: 'Blumen-Wiese',       grass: '#55ad1c', grassHi: '#67c427', cliff: '#bfa07a', cliffDark: '#8f7454', stone: '#9499a1', pine: '#59cc1f', pineDark: '#3c9610', ice: false },
+    { name: 'Abend-Kliff',        grass: '#2d5932', grassHi: '#396e3f', cliff: '#6b5a52', cliffDark: '#4a3d37', stone: '#686e7a', pine: '#2e7d4b', pineDark: '#1d5431', ice: false },
+    { name: 'Winter-Terrasse',    grass: '#9ec4d6', grassHi: '#b5d6e6', cliff: '#7f8f9c', cliffDark: '#5b6975', stone: '#a4b2bd', pine: '#3b8c7c', pineDark: '#266155', ice: true  },
+    { name: 'Asche-Plateau',      grass: '#594238', grassHi: '#6e5246', cliff: '#69473d', cliffDark: '#472e27', stone: '#6b6363', pine: '#a83c24', pineDark: '#752513', ice: false },
+    { name: 'Gipfel der Rache',   grass: '#3b2b59', grassHi: '#4b3770', cliff: '#70586b', cliffDark: '#4d3a49', stone: '#7a7085', pine: '#66248f', pineDark: '#431461', ice: false }
   ];
 
   function getBiome(lvl) {
     return BIOMES[Math.min(BIOMES.length - 1, Math.floor((lvl - 1) / 10))];
   }
+
+  const SARCASTIC_LINES = [
+    'Vertrauen ist gut. Baum ist besser.',
+    'Der sah doch wirklich ganz nett aus.',
+    'Tja. Brille schon wieder weg.',
+    'Ein ganz normaler Spaziergang.',
+    'Schilder lügen im Wald grundsätzlich.',
+    'Knapp vorbei ist auch erschlagen.',
+    'Die Tanne hatte einen schlechten Tag.',
+    'Warum gehst du auch einfach weiter?',
+    'Die lila Blume wollte das auch nicht.',
+    'Nächstes Mal einfach nicht atmen.'
+  ];
 
   // Audio Synthesizer
   let audioCtx = null;
@@ -300,20 +335,24 @@
     osc.stop(now + dur);
   }
   function sfxHit() {
-    playTone(150, 0.22, 'sawtooth', 0.2, -100);
-    setTimeout(() => playTone(980, 0.14, 'triangle', 0.12, 320), 60);
+    playTone(135, 0.2, 'sawtooth', 0.22, -95);
+    setTimeout(() => playTone(1250, 0.12, 'triangle', 0.14, 420), 45);
+    setTimeout(() => playTone(1680, 0.10, 'sine', 0.09, -200), 95);
   }
-  function sfxClick() { playTone(620, 0.06, 'square', 0.08, -220); }
-  function sfxShot() { playTone(260, 0.12, 'sawtooth', 0.18, -190); }
-  function sfxBoom() { playTone(95, 0.32, 'sawtooth', 0.24, -65); }
+  function sfxClickClack() {
+    playTone(760, 0.04, 'square', 0.09, -240);
+    setTimeout(() => playTone(980, 0.045, 'square', 0.09, -180), 55);
+  }
+  function sfxShot() { playTone(240, 0.12, 'sawtooth', 0.2, -180); }
+  function sfxBoom() { playTone(90, 0.28, 'sawtooth', 0.24, -60); }
   function sfxWin() {
-    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.18, 'triangle', 0.15), i * 95));
+    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.16, 'triangle', 0.14), i * 85));
   }
 
-  // Persistent Save
-  const STORAGE_KEY = 'bhd_100_save_v2';
+  // Save Data
+  const STORAGE_KEY = 'bhd_troll_v3';
   let save = {
-    hat: 'straw', glasses: 'round', shirt: '#d9534f', hair: '#4a2e1b',
+    hat: 'none', glasses: 'round', shirt: '#2563eb', hair: '#5c361e',
     mode: 'normal', maxUnlocked: 1, selectedLevel: 1, totalDeaths: 0
   };
   try {
@@ -333,6 +372,13 @@
     const d = Math.floor((sec % 1) * 10);
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${d}`;
   }
+  function getRageState(deaths) {
+    if (deaths === 0) return { label: 'Ärger: Ruhig', bg: '#3b5923' };
+    if (deaths <= 2) return { label: 'Ärger: Skeptisch', bg: '#6b6e1d' };
+    if (deaths <= 5) return { label: 'Ärger: Genervt', bg: '#a6631b' };
+    if (deaths <= 9) return { label: 'Ärger: Salzig', bg: '#b83b24' };
+    return { label: 'Ärger: Baum-Trauma', bg: '#8f1735' };
+  }
   function syncMenuUI() {
     optHat.value = save.hat;
     optGlasses.value = save.glasses;
@@ -350,7 +396,6 @@
   }
   syncMenuUI();
 
-  // Toast
   let toastTimer = null;
   function showToast(msg) {
     toastEl.textContent = msg;
@@ -359,7 +404,6 @@
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2100);
   }
 
-  // Deterministic PRNG (Mulberry32)
   function createRng(seed) {
     let a = seed >>> 0;
     return function() {
@@ -370,26 +414,29 @@
     };
   }
 
-  // Current Level Data
+  // World Geometry & Entities
   let currentLevel = 1;
   let currentBiome = BIOMES[0];
-  let corridors = [];
-  let decoTrees = [];
+  let corridors = [];      // Walkable union rects
+  let terraces = [];       // Visual terraced grass plateaus with cliff walls
+  let cobblePaths = [];    // Gray cobblestone strips
+  let stairVisuals = [];   // Wooden stairs with gray handrails
+  let grassTufts = [];
+  let decoPines = [];
   let spawnPos = { x: 400, y: 1000 };
-  let cabin = { x: 340, y: 100, w: 120, h: 85 };
+  let cabin = { x: 340, y: 85, w: 120, h: 85 };
+
   let entities = {
-    fallTrees: [],
-    revolvers: [],
-    forkAmbushes: [],
-    chasers: [],
+    fallPairs: [],    // Double-fakeout falling pine pairs
+    revolvers: [],    // 100% disguised revolver pines (no laser line!)
+    forkAmbushes: [], // Lying fork trap
+    chasers: [],      // Rear chaser pine + rocks
     rocks: [],
     rollingLogs: [],
-    stairs: [],
     pushLogs: [],
-    dirtTraps: [],
-    apples: [],
-    signs: [],
-    axeBaits: []
+    flowerBaits: [],  // Purple flower / axe bait -> hand or spring pine
+    fakeFlags: [],    // Fake finish flag before real cabin
+    signs: []
   };
 
   function isPointInCorridors(px, py) {
@@ -399,7 +446,6 @@
     }
     return false;
   }
-
   function isCircleWalkable(cx, cy, r) {
     if (!isPointInCorridors(cx, cy)) return false;
     const d = r * 0.7071;
@@ -413,222 +459,222 @@
     return true;
   }
 
-  // Build any level 1..100 deterministically with escalating difficulty
   function buildLevel(lvl) {
     currentLevel = lvl;
     currentBiome = getBiome(lvl);
-    const rng = createRng(lvl * 7919 + 1337);
-    const diff = (lvl - 1) / (MAX_LEVEL - 1); // 0.0 -> 1.0
+    const rng = createRng(lvl * 9137 + 4242);
+    const diff = (lvl - 1) / (MAX_LEVEL - 1);
     const isBoss = (lvl % 10 === 0);
 
-    // Difficulty parameters
-    const pFallSpeed = 3.8 + diff * 4.7;
-    const pAimTime = Math.max(0.30, 0.68 - diff * 0.38);
-    const pCooldown = Math.max(0.70, 1.60 - diff * 0.90);
-    const pBulletSpd = 320 + diff * 260;
-    const pChaserSpd = 115 + diff * 57; // player maxSpeed = 205
-    const pLogSpd = 195 + diff * 195;
-    const pAppleFuse = Math.max(0.25, 0.52 - diff * 0.27);
-    const pHandSlam = Math.max(0.24, 0.48 - diff * 0.24);
+    // Escalating speeds & tighter troll timings
+    const pFallAccel = 4.6 + diff * 5.0;
+    const pSnapTime = Math.max(0.24, 0.50 - diff * 0.26); // short click-clack before shot (no laser!)
+    const pCooldown = Math.max(0.68, 1.45 - diff * 0.77);
+    const pBulletSpd = 350 + diff * 250;
+    const pChaserSpd = 128 + diff * 54;
+    const pLogSpd = 215 + diff * 185;
+    const pBaitSlam = Math.max(0.20, 0.40 - diff * 0.20);
 
-    // Number of hazard segments increases with level (2 in L1 -> up to 9 in L100)
-    let segCount = Math.min(8, 2 + Math.floor(lvl / 14));
+    // Action-packed right from Level 1 (4 segments in L1 -> up to 10 in L100)
+    let segCount = Math.min(9, 4 + Math.floor(lvl / 16));
     if (isBoss) segCount += 1;
     if (lvl === 100) segCount = 10;
 
-    // Available segment archetypes unlock progressively in early levels
-    const pool = ['fall'];
-    if (lvl >= 2) pool.push('revolver');
-    if (lvl >= 3) pool.push('fork');
-    if (lvl >= 4) pool.push('chaser');
-    if (lvl >= 5) pool.push('rolling');
-    if (lvl >= 6) pool.push('sniper');
-    if (lvl >= 7) pool.push('dirt');
-    if (lvl >= 8) pool.push('apples');
-    if (lvl >= 9) pool.push('axe');
+    const allKinds = ['doublefall', 'revolver', 'flowerbait', 'fork', 'chaser', 'stairslog', 'sniper'];
 
     corridors = [];
+    terraces = [];
+    cobblePaths = [];
+    stairVisuals = [];
+    grassTufts = [];
+    decoPines = [];
     entities = {
-      fallTrees: [], revolvers: [], forkAmbushes: [], chasers: [],
-      rocks: [], rollingLogs: [], stairs: [], pushLogs: [],
-      dirtTraps: [], apples: [], signs: [], axeBaits: []
+      fallPairs: [], revolvers: [], forkAmbushes: [], chasers: [],
+      rocks: [], rollingLogs: [], pushLogs: [], flowerBaits: [],
+      fakeFlags: [], signs: []
     };
 
-    // Build upward from bottom to top, then shift so cabin sits near y = 100
-    // Start clearing at top of stack (lowest Y will be cabin, highest Y will be spawn)
-    let curY = 260; // Finish area bottom edge
+    // Finish Terrace (Top)
+    let curY = 260;
+    corridors.push({ x: 200, y: 65, w: 400, h: 255 });
+    terraces.push({ x: 140, y: 50, w: 520, h: 240, cliffH: 38 });
+    cobblePaths.push({ x: 372, y: 165, w: 56, h: 155 });
+    cabin = { x: 340, y: 82, w: 120, h: 85 };
 
-    // Finish Clearing (Cabin)
-    corridors.push({ x: 200, y: 70, w: 400, h: 250 });
-    cabin = { x: 340, y: 95, w: 120, h: 85 };
+    // Fake Finish Flag right below real cabin on Level 1, Boss levels, and 45% of levels
+    if (lvl === 1 || isBoss || rng() < 0.45) {
+      entities.fakeFlags.push({
+        x: 400, y: 235, triggered: false, active: false, fuse: 0, maxFuse: pBaitSlam + 0.08, exploded: false
+      });
+    }
 
-    // Add segments going downward (increasing Y)
     for (let s = 0; s < segCount; s++) {
-      // Pick archetype: early levels introduce new mechanic explicitly on first segment
       let kind;
-      if (lvl <= 9 && s === 0) {
-        kind = pool[pool.length - 1];
+      if (lvl === 1) {
+        // Hand-tuned Level 1 full of immediate Original-style trolls
+        kind = ['flowerbait', 'revolver', 'doublefall', 'fork'][s % 4];
       } else {
-        kind = pool[Math.floor(rng() * pool.length)];
+        kind = allKinds[Math.floor(rng() * allKinds.length)];
       }
 
-      const segH = 440;
+      const segH = 420;
       const topY = curY;
       const botY = curY + segH;
       const midY = (topY + botY) / 2;
 
+      // Visual terraced plateau with cliff edge between segments
+      terraces.push({ x: 120, y: topY, w: 560, h: segH, cliffH: 36 });
+      // Wooden stair connecting this terrace up to the next terrace
+      const stairX = kind === 'fork' ? 358 : 358;
+      stairVisuals.push({ x: stairX, y: topY - 22, w: 84, h: 66 });
+
       if (kind === 'fork') {
-        // Deceptive Fork: both branches walkable, one side hides ambush tree
         const trapRight = rng() > 0.5;
-        corridors.push({ x: 150, y: topY - 40, w: 500, h: 110 }); // top rejoin
-        corridors.push({ x: 150, y: topY + 20, w: 170, h: segH - 40 }); // left branch
-        corridors.push({ x: 480, y: topY + 20, w: 170, h: segH - 40 }); // right branch
-        corridors.push({ x: 150, y: botY - 80, w: 500, h: 120 }); // bottom split
+        corridors.push({ x: 155, y: topY - 40, w: 490, h: 110 });
+        corridors.push({ x: 155, y: topY + 20, w: 170, h: segH - 40 });
+        corridors.push({ x: 475, y: topY + 20, w: 170, h: segH - 40 });
+        corridors.push({ x: 155, y: botY - 80, w: 490, h: 120 });
+        cobblePaths.push({ x: 215, y: topY + 20, w: 48, h: segH - 20 });
+        cobblePaths.push({ x: 537, y: topY + 20, w: 48, h: segH - 20 });
+        cobblePaths.push({ x: 215, y: botY - 55, w: 370, h: 48 });
+        cobblePaths.push({ x: 215, y: topY + 12, w: 370, h: 46 });
+
         entities.forkAmbushes.push({
-          x: trapRight ? 565 : 235, y: midY, triggered: false, active: false, r: 0, maxR: 78 + diff * 18
+          x: trapRight ? 560 : 240, y: midY, triggered: false, active: false, r: 0, maxR: 78 + diff * 18
         });
         entities.signs.push({
-          x: 400, y: botY - 35,
+          x: 400, y: botY - 45,
           text: trapRight ? 'RECHTS = SICHER' : 'LINKS = SICHER'
         });
-      } else if (kind === 'rolling') {
-        // Narrow stair corridor + guaranteed left/right safe alcove
+      } else if (kind === 'stairslog') {
         const alcoveLeft = rng() > 0.5;
         corridors.push({ x: 295, y: topY - 40, w: 210, h: segH + 80 });
-        corridors.push({
-          x: alcoveLeft ? 165 : 465, y: midY - 75, w: 170, h: 150
-        });
-        entities.stairs.push({ x: 308, y: topY + 10, w: 184, h: segH - 20 });
+        corridors.push({ x: alcoveLeft ? 165 : 465, y: midY - 75, w: 170, h: 150 });
+        cobblePaths.push({ x: 372, y: topY - 10, w: 56, h: segH + 20 });
+        stairVisuals.push({ x: 325, y: topY + 55, w: 150, h: segH - 110 });
         entities.rollingLogs.push({
-          x: 400, y: topY + 15, topY: topY + 15, botY: botY - 10,
-          w: 176, h: 30, speed: pLogSpd, active: false, cooldown: 0.4 + rng() * 0.4
+          x: 400, y: topY + 18, topY: topY + 18, botY: botY - 12,
+          w: 174, h: 30, speed: pLogSpd, active: false, cooldown: 0.35 + rng() * 0.35
         });
       } else {
-        // Standard generous corridor (width 280..340, always >= 50px vertical overlap)
-        const w = kind === 'fall' ? 250 : 320;
+        const w = kind === 'doublefall' ? 270 : 330;
         const cx = 400 - w / 2;
         corridors.push({ x: cx, y: topY - 40, w: w, h: segH + 80 });
+        cobblePaths.push({ x: 372, y: topY - 10, w: 56, h: segH + 20 });
 
-        if (kind === 'fall') {
-          const count = lvl >= 35 ? 2 : 1;
+        if (kind === 'doublefall') {
+          // Troll Double-Fakeout: First pine falls & misses slightly below, 0.25s later opposite silent pine slams player
+          const firstRight = rng() > 0.4;
+          entities.fallPairs.push({
+            triggerY: midY + 75,
+            triggered: false,
+            secondDelay: 0.26,
+            p1: {
+              x: firstRight ? cx + w - 12 : cx + 12, y: midY + 40, dir: firstRight ? -1 : 1,
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel, reach: 115
+            },
+            p2: {
+              x: firstRight ? cx + 12 : cx + w - 12, y: midY - 45, dir: firstRight ? 1 : -1,
+              falling: false, fallen: false, angle: 0, speed: 0, accel: pFallAccel * 1.18, reach: 155
+            }
+          });
+        } else if (kind === 'revolver') {
+          // 100% disguised pines right next to cobble path, snapping revolver out with no laser line
+          const count = 1 + (lvl >= 10 ? 1 : 0) + (lvl >= 50 ? 1 : 0);
           for (let k = 0; k < count; k++) {
-            const fromRight = (k % 2 === 0) ? (rng() > 0.4) : !true;
-            const fy = count === 1 ? midY : (topY + 130 + k * 190);
-            entities.fallTrees.push({
-              x: fromRight ? (cx + w - 12) : (cx + 12),
-              y: fy, dir: fromRight ? -1 : 1,
-              triggered: false, falling: false, fallen: false,
-              angle: 0, speed: 0, accel: pFallSpeed, reach: 145
+            const rightSide = (k % 2 === 0);
+            entities.revolvers.push({
+              x: rightSide ? cx + w - 22 : cx + 22,
+              y: topY + 100 + k * (240 / Math.max(1, count)),
+              side: rightSide ? -1 : 1,
+              state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
+              cooldown: 0.25 + k * 0.35, baseCooldown: pCooldown,
+              snapTime: pSnapTime, bulletSpd: pBulletSpd
             });
           }
-        } else if (kind === 'revolver') {
-          const count = 1 + (lvl >= 15 ? 1 : 0) + (lvl >= 60 ? 1 : 0);
-          for (let k = 0; k < count; k++) {
-            const leftSide = (k % 2 === 0);
-            entities.revolvers.push({
-              x: leftSide ? cx + 18 : cx + w - 18,
-              y: topY + 95 + k * (260 / Math.max(1, count)),
-              state: 'idle', timer: 0, aimX: 400, aimY: midY,
-              cooldown: 0.35 + k * 0.45, baseCooldown: pCooldown,
-              aimTime: pAimTime, bulletSpd: pBulletSpd
+        } else if (kind === 'flowerbait') {
+          // Innocent purple flower or shiny axe in the middle of the grass
+          const isAxe = rng() > 0.5;
+          entities.flowerBaits.push({
+            x: 400 + (rng() - 0.5) * 90, y: midY,
+            type: isAxe ? 'axe' : 'flower',
+            triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 66 + diff * 14
+          });
+          entities.signs.push({
+            x: 400, y: midY + 88,
+            text: isAxe ? 'GRATIS AXT!' : 'SCHÖNE BLUME'
+          });
+          // Extra bait in higher levels
+          if (lvl >= 25) {
+            entities.flowerBaits.push({
+              x: 400 + (rng() > 0.5 ? 75 : -75), y: topY + 95,
+              type: 'flower', triggered: false, handActive: false, slamT: 0, maxSlam: pBaitSlam, blastR: 62
             });
           }
         } else if (kind === 'chaser') {
-          // Two rocks with guaranteed 90px gap in center (x: 355..445)
-          const rockY = topY + 135;
-          entities.rocks.push({ x: 308, y: rockY, r: 47 });
-          entities.rocks.push({ x: 492, y: rockY, r: 47 });
+          // Innocent pine sitting BEHIND the player wakes up once player passes it!
+          const rockY = topY + 125;
+          entities.rocks.push({ x: 308, y: rockY, r: 46 });
+          entities.rocks.push({ x: 492, y: rockY, r: 46 });
           entities.chasers.push({
-            x: 400, y: botY - 90, active: false, stuck: false,
-            speed: pChaserSpd, r: 22, triggerY: botY + 35, topLimitY: rockY - 45
+            x: 335, y: botY - 85, active: false, stuck: false,
+            speed: pChaserSpd, r: 22, wakeY: botY - 125, topLimitY: rockY - 45
           });
         } else if (kind === 'sniper') {
-          // Sniper at top + pushable cover log below
           entities.pushLogs.push({
-            x: 355, y: botY - 120, w: 90, h: 28,
-            minX: cx + 20, maxX: cx + w - 110, minY: topY + 115, maxY: botY - 70
+            x: 355, y: botY - 115, w: 90, h: 28,
+            minX: cx + 22, maxX: cx + w - 112, minY: topY + 115, maxY: botY - 68
           });
           entities.revolvers.push({
-            x: 400, y: topY + 42,
-            state: 'idle', timer: 0, aimX: 400, aimY: midY,
-            cooldown: 0.45, baseCooldown: pCooldown * 0.9,
-            aimTime: pAimTime, bulletSpd: pBulletSpd * 1.05
+            x: 400, y: topY + 42, side: 1,
+            state: 'idle', timer: 0, flashT: 0, aimX: 400, aimY: midY,
+            cooldown: 0.35, baseCooldown: pCooldown * 0.88,
+            snapTime: pSnapTime, bulletSpd: pBulletSpd * 1.05
           });
-        } else if (kind === 'dirt') {
-          // 1 to 3 suspicious dirt patches offset so a clear path always exists
-          const count = 1 + (lvl >= 25 ? 1 : 0) + (lvl >= 65 ? 1 : 0);
-          for (let k = 0; k < count; k++) {
-            const dx = k === 0 ? 400 : (k === 1 ? 315 : 485);
-            const dy = topY + 110 + k * 115;
-            entities.dirtTraps.push({ x: dx, y: dy, r: 38, triggered: false });
-          }
-        } else if (kind === 'apples') {
-          const count = 3 + Math.min(5, Math.floor(lvl / 18));
-          entities.signs.push({ x: 400, y: botY - 40, text: 'ÄPFEL = GRATIS' });
-          for (let k = 0; k < count; k++) {
-            const ax = cx + 52 + rng() * (w - 104);
-            const ay = topY + 65 + (k / count) * (segH - 140);
-            entities.apples.push({
-              x: ax, y: ay, r: 15, armed: false, exploded: false,
-              fuse: 0, maxFuse: pAppleFuse, blastR: 66 + diff * 14
-            });
-          }
-        } else if (kind === 'axe') {
-          entities.axeBaits.push({
-            x: 400, y: midY, triggered: false, handActive: false,
-            slamT: 0, maxSlam: pHandSlam, blastR: 64 + diff * 14
-          });
-          // Extra flanking revolver in high levels
-          if (lvl >= 45) {
-            entities.revolvers.push({
-              x: cx + 18, y: topY + 100,
-              state: 'idle', timer: 0, aimX: 400, aimY: midY,
-              cooldown: 0.6, baseCooldown: pCooldown,
-              aimTime: pAimTime, bulletSpd: pBulletSpd
-            });
-          }
         }
       }
 
-      // Secondary bonus hazard in higher levels (Level >= 20) for layered challenge
-      if (lvl >= 20 && kind !== 'fork' && kind !== 'rolling' && rng() < 0.35 + diff * 0.45) {
-        entities.apples.push({
-          x: 310 + rng() * 180, y: midY + (rng() - 0.5) * 140,
-          r: 15, armed: false, exploded: false, fuse: 0, maxFuse: pAppleFuse, blastR: 62
-        });
+      // Grass tufts & decorative rocks on plateau edges
+      for (let g = 0; g < 10; g++) {
+        const gx = 145 + rng() * 510;
+        const gy = topY + 25 + rng() * (segH - 50);
+        if (Math.abs(gx - 400) > 55) {
+          grassTufts.push({ x: gx, y: gy, blades: 3 + Math.floor(rng() * 3) });
+        }
       }
 
       curY = botY;
     }
 
-    // Start Clearing (Picnic Area)
-    corridors.push({ x: 220, y: curY - 40, w: 360, h: 300 });
-    spawnPos = { x: 400, y: curY + 135 };
+    // Start Terrace
+    corridors.push({ x: 220, y: curY - 40, w: 360, h: 280 });
+    terraces.push({ x: 140, y: curY, w: 520, h: 260, cliffH: 38 });
+    stairVisuals.push({ x: 358, y: curY - 22, w: 84, h: 66 });
+    cobblePaths.push({ x: 372, y: curY - 10, w: 56, h: 170 });
+    spawnPos = { x: 400, y: curY + 145 };
 
-    // Build Decorative Forest strictly outside corridors
-    decoTrees = [];
-    const maxY = curY + 340;
-    for (let y = 20; y <= maxY; y += 58) {
-      for (let x = 15; x <= 785; x += 64) {
-        const jx = x + (rng() - 0.5) * 30;
-        const jy = y + (rng() - 0.5) * 26;
+    // Decorative Low-Poly Pines strictly outside walkable paths
+    const maxY = curY + 320;
+    for (let y = 30; y <= maxY; y += 64) {
+      for (let x = 20; x <= 780; x += 66) {
+        const jx = x + (rng() - 0.5) * 28;
+        const jy = y + (rng() - 0.5) * 24;
         if (!isCircleWalkable(jx, jy, 44) && !isPointInCorridors(jx, jy)) {
-          decoTrees.push({
-            x: jx, y: jy,
-            scale: 0.85 + rng() * 0.35,
-            hue: rng() > 0.5 ? currentBiome.tree1 : currentBiome.tree2
-          });
+          decoPines.push({ x: jx, y: jy, scale: 0.88 + rng() * 0.3 });
         }
       }
     }
   }
 
-  // Runtime State
+  // Game Loop State
   let state = 'menu'; // menu, playing, dead, paused, levelwin
   let levelTime = 0;
   let levelDeaths = 0;
+  let hitStop = 0;
   let deathTimer = 0;
-  let camera = { x: 400, y: 1000, shake: 0 };
+  let deathLine = '';
+  let deathPos = { x: 400, y: 400 };
+  let camera = { x: 400, y: 1000, shake: 0, zoom: 1 };
   let bullets = [];
   let particles = [];
 
@@ -654,54 +700,71 @@
       levelTime = 0;
       levelDeaths = 0;
     }
+    hitStop = 0;
     camera.x = player.x;
-    camera.y = player.y - 60;
+    camera.y = player.y - 55;
     camera.shake = 0;
+    camera.zoom = 1;
     state = 'playing';
     menuOverlay.classList.add('hidden');
     pauseOverlay.classList.add('hidden');
     levelWinOverlay.classList.add('hidden');
     hud.classList.remove('hidden');
-    showToast(`Level ${lvl}/100 · ${currentBiome.name}${lvl % 10 === 0 ? ' (Meilenstein)' : ''}`);
+    updateRageHUD();
+    showToast(`Level ${lvl}/100 · ${currentBiome.name}`);
   }
 
-  function killPlayer(reason, knockX = 0, knockY = 1) {
+  function updateRageHUD() {
+    const r = getRageState(levelDeaths);
+    rageBadge.textContent = r.label;
+    rageBadge.style.background = r.bg;
+  }
+
+  function killPlayer(customLine, knockX = 0, knockY = 1) {
     if (!player.alive || state !== 'playing') return;
     player.alive = false;
     state = 'dead';
-    deathTimer = 1.15;
+    hitStop = 0.09;     // 90ms classic hit-stop
+    deathTimer = 0.78;  // fast rage-loop respawn
     levelDeaths++;
     save.totalDeaths++;
     persistSave();
+    updateRageHUD();
     sfxHit();
-    camera.shake = 12;
+    camera.shake = 14;
+    camera.zoom = 1.14;
+    deathPos = { x: player.x, y: player.y - 36 };
+    deathLine = customLine || SARCASTIC_LINES[Math.floor(Math.random() * SARCASTIC_LINES.length)];
 
     const len = Math.hypot(knockX, knockY) || 1;
-    player.vx = (knockX / len) * 280;
-    player.vy = (knockY / len) * 280;
-    player.ragdollSpin = (Math.random() > 0.5 ? 1 : -1) * 11;
+    player.vx = (knockX / len) * 300;
+    player.vy = (knockY / len) * 300;
+    player.ragdollSpin = (Math.random() > 0.5 ? 1 : -1) * 13;
     player.glasses = {
-      x: player.x, y: player.y - 14,
-      vx: (Math.random() - 0.5) * 180 - (knockX / len) * 90,
-      vy: -160 - Math.random() * 80,
-      rot: 0, spin: (Math.random() - 0.5) * 16
+      x: player.x, y: player.y - 16,
+      vx: (Math.random() - 0.5) * 200 - (knockX / len) * 90,
+      vy: -175 - Math.random() * 80,
+      rot: 0, spin: (Math.random() - 0.5) * 18
     };
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 18; i++) {
       const a = Math.random() * Math.PI * 2;
-      const sp = 60 + Math.random() * 140;
+      const sp = 70 + Math.random() * 160;
       particles.push({
         x: player.x, y: player.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
-        life: 0.45 + Math.random() * 0.35, color: i % 2 ? '#f6e27f' : '#e05a47', size: 4
+        life: 0.4 + Math.random() * 0.3, color: i % 2 ? '#f7e479' : '#e05a47', size: 4
       });
     }
-    showToast(reason);
   }
 
-  // Input Handling
+  // Input
   const keys = {};
   window.addEventListener('keydown', (e) => {
     keys[e.code] = true;
-    if (e.code === 'KeyR' && (state === 'playing' || state === 'dead')) {
+    if (state === 'dead' && hitStop <= 0 && (e.code === 'Space' || e.code === 'KeyR' || e.code === 'Enter')) {
+      startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
+      return;
+    }
+    if (e.code === 'KeyR' && state === 'playing') {
       startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
     }
     if (e.code === 'Escape' || e.code === 'KeyP') {
@@ -717,6 +780,10 @@
 
   const joy = { active: false, id: null, ox: 0, oy: 0, cx: 0, cy: 0, dx: 0, dy: 0, maxR: 54 };
   canvas.addEventListener('pointerdown', (e) => {
+    if (state === 'dead' && hitStop <= 0) {
+      startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
+      return;
+    }
     if (state !== 'playing') return;
     initAudio();
     if (!joy.active) {
@@ -729,8 +796,7 @@
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!joy.active || e.pointerId !== joy.id) return;
-    const rx = e.clientX - joy.ox;
-    const ry = e.clientY - joy.oy;
+    const rx = e.clientX - joy.ox; const ry = e.clientY - joy.oy;
     const dist = Math.hypot(rx, ry);
     const clamped = Math.min(dist, joy.maxR);
     const ang = Math.atan2(ry, rx);
@@ -751,7 +817,7 @@
   canvas.addEventListener('pointerup', releaseJoy);
   canvas.addEventListener('pointercancel', releaseJoy);
 
-  // Menu Controls
+  // Menu Bindings
   optHat.onchange = () => { save.hat = optHat.value; persistSave(); };
   optGlasses.onchange = () => { save.glasses = optGlasses.value; persistSave(); };
   optShirt.onchange = () => { save.shirt = optShirt.value; persistSave(); };
@@ -759,25 +825,16 @@
   modeNormal.onclick = () => { save.mode = 'normal'; persistSave(); };
   modeChallenge.onclick = () => { save.mode = 'challenge'; persistSave(); };
   levelSlider.oninput = () => { save.selectedLevel = parseInt(levelSlider.value, 10); persistSave(); };
-  document.getElementById('btnLvlMinus').onclick = () => {
-    save.selectedLevel = Math.max(1, save.selectedLevel - 1); persistSave();
-  };
-  document.getElementById('btnLvlPlus').onclick = () => {
-    save.selectedLevel = Math.min(save.maxUnlocked, save.selectedLevel + 1); persistSave();
+  document.getElementById('btnLvlMinus').onclick = () => { save.selectedLevel = Math.max(1, save.selectedLevel - 1); persistSave(); };
+  document.getElementById('btnLvlPlus').onclick = () => { save.selectedLevel = Math.min(save.maxUnlocked, save.selectedLevel + 1); persistSave(); };
+  document.getElementById('btnStart').onclick = () => startLevel(save.mode === 'challenge' ? 1 : save.selectedLevel, true);
+  document.getElementById('btnRestart').onclick = () => {
+    if (state === 'playing' || state === 'dead') startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
   };
 
-  document.getElementById('btnStart').onclick = () => {
-    const startLvl = save.mode === 'challenge' ? 1 : save.selectedLevel;
-    startLevel(startLvl, true);
-  };
-  document.getElementById('btnRestart').onclick = () => {
-    if (state === 'playing' || state === 'dead') {
-      startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
-    }
-  };
   function openPause() {
     state = 'paused';
-    pauseSub.textContent = `Level ${currentLevel}/100 · ${currentBiome.name}`;
+    pauseSub.textContent = `Level ${currentLevel}/100 · Alles völlig harmlos hier.`;
     pauseOverlay.classList.remove('hidden');
   }
   function closePause() {
@@ -786,26 +843,18 @@
   }
   document.getElementById('btnPause').onclick = () => { if (state === 'playing') openPause(); };
   document.getElementById('btnResume').onclick = closePause;
-  document.getElementById('btnRestartLevel').onclick = () => {
+  document.getElementById('btnRestartLevel').onclick = () => { closePause(); startLevel(save.mode === 'challenge' ? 1 : currentLevel, false); };
+  document.getElementById('btnWaldTipp').onclick = () => {
     closePause();
-    startLevel(save.mode === 'challenge' ? 1 : currentLevel, false);
-  };
-  document.getElementById('btnCheckTree').onclick = () => {
-    closePause();
-    killPlayer('Selbst im Pause-Menü hasst dich ein Baum!', 0, 1);
+    killPlayer('Wald-Tipp: Vertraue keinem Button.', 0, 1);
   };
   document.getElementById('btnToMenu').onclick = () => {
-    state = 'menu'; pauseOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden');
-    syncMenuUI();
+    state = 'menu'; pauseOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
-  btnNextLevel.onclick = () => {
-    if (currentLevel < MAX_LEVEL) startLevel(currentLevel + 1, true);
-    else startLevel(1, true);
-  };
+  btnNextLevel.onclick = () => startLevel(currentLevel < MAX_LEVEL ? currentLevel + 1 : 1, true);
   document.getElementById('btnReplayLevel').onclick = () => startLevel(currentLevel, true);
   document.getElementById('btnWinMenu').onclick = () => {
-    state = 'menu'; levelWinOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden');
-    syncMenuUI();
+    state = 'menu'; levelWinOverlay.classList.add('hidden'); hud.classList.add('hidden'); menuOverlay.classList.remove('hidden'); syncMenuUI();
   };
 
   // Collision Helpers
@@ -826,9 +875,14 @@
     return (dx * dx + dy * dy) < (r * r);
   }
 
-  // Update Loop
+  // Update
   function update(dt) {
-    if (camera.shake > 0) camera.shake = Math.max(0, camera.shake - dt * 32);
+    if (hitStop > 0) {
+      hitStop -= dt;
+      return;
+    }
+    if (camera.shake > 0) camera.shake = Math.max(0, camera.shake - dt * 36);
+    camera.zoom += (1 - camera.zoom) * Math.min(1, 5 * dt);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
@@ -843,22 +897,19 @@
       if (player.glasses) {
         player.glasses.x += player.glasses.vx * dt;
         player.glasses.y += player.glasses.vy * dt;
-        player.glasses.vy += 420 * dt;
+        player.glasses.vy += 450 * dt;
         player.glasses.rot += player.glasses.spin * dt;
       }
       deathTimer -= dt;
       if (deathTimer <= 0) {
-        const nextLvl = save.mode === 'challenge' ? 1 : currentLevel;
-        startLevel(nextLvl, save.mode === 'challenge');
+        startLevel(save.mode === 'challenge' ? 1 : currentLevel, save.mode === 'challenge');
       }
       return;
     }
 
     if (state !== 'playing') return;
-
     levelTime += dt;
 
-    // Input
     let ix = joy.active ? joy.dx : 0;
     let iy = joy.active ? joy.dy : 0;
     if (keys['ArrowLeft'] || keys['KeyA']) ix -= 1;
@@ -869,56 +920,67 @@
     if (ilen > 1) { ix /= ilen; iy /= ilen; }
 
     const maxSpeed = 205;
-    const accel = currentBiome.ice ? 4.8 : 11.5;
+    const accel = currentBiome.ice ? 4.8 : 12.0;
     player.vx += (ix * maxSpeed - player.vx) * Math.min(1, accel * dt);
     player.vy += (iy * maxSpeed - player.vy) * Math.min(1, accel * dt);
+    if (Math.hypot(player.vx, player.vy) > 12) player.walkCycle += dt * 12;
 
-    if (Math.hypot(player.vx, player.vy) > 12) player.walkCycle += dt * 11;
-
-    // Slide movement against union corridor walls
     const nx = player.x + player.vx * dt;
     const ny = player.y + player.vy * dt;
     if (isCircleWalkable(nx, player.y, player.r)) player.x = nx; else player.vx = 0;
     if (isCircleWalkable(player.x, ny, player.r)) player.y = ny; else player.vy = 0;
 
-    // 1. Falling Trees
-    for (const ft of entities.fallTrees) {
-      if (!ft.triggered && Math.abs(player.y - ft.y) < 95) {
-        ft.triggered = true; ft.falling = true; sfxClick();
+    // 1. Double-Fakeout Falling Pairs
+    for (const pair of entities.fallPairs) {
+      if (!pair.triggered && player.y < pair.triggerY) {
+        pair.triggered = true;
+        pair.p1.falling = true;
+        sfxClickClack();
       }
-      if (ft.falling) {
-        ft.speed += ft.accel * dt;
-        ft.angle += ft.speed * dt;
-        if (ft.angle >= Math.PI / 2) {
-          ft.angle = Math.PI / 2; ft.falling = false; ft.fallen = true;
-          camera.shake = 6; sfxBoom();
-        } else if (ft.angle > 0.72) {
-          const minX = ft.dir < 0 ? ft.x - ft.reach : ft.x;
-          const maxX = ft.dir < 0 ? ft.x : ft.x + ft.reach;
-          if (player.x > minX && player.x < maxX && Math.abs(player.y - ft.y) < 32) {
-            killPlayer('Vom Fall-Baum erschlagen!', ft.dir, 0.3);
+      if (pair.triggered && !pair.p2.falling && !pair.p2.fallen) {
+        pair.secondDelay -= dt;
+        if (pair.secondDelay <= 0) {
+          pair.p2.falling = true;
+          sfxClickClack();
+        }
+      }
+      for (const ft of [pair.p1, pair.p2]) {
+        if (ft.falling) {
+          ft.speed += ft.accel * dt;
+          ft.angle += ft.speed * dt;
+          if (ft.angle >= Math.PI / 2) {
+            ft.angle = Math.PI / 2; ft.falling = false; ft.fallen = true;
+            camera.shake = 6; sfxBoom();
+          } else if (ft.angle > 0.78) {
+            const minX = ft.dir < 0 ? ft.x - ft.reach : ft.x;
+            const maxX = ft.dir < 0 ? ft.x : ft.x + ft.reach;
+            if (player.x > minX && player.x < maxX && Math.abs(player.y - ft.y) < 30) {
+              killPlayer('Der erste war nur Ablenkung.', ft.dir, 0.3);
+            }
           }
         }
       }
     }
 
-    // 2. Revolver & Sniper Trees
+    // 2. Disguised Revolver Pines (no laser line - sudden snap + click-clack!)
     for (const rv of entities.revolvers) {
-      if (Math.abs(player.y - rv.y) < 330) {
+      if (rv.flashT > 0) rv.flashT -= dt;
+      if (Math.abs(player.y - rv.y) < 300) {
         rv.cooldown -= dt;
         if (rv.state === 'idle' && rv.cooldown <= 0) {
-          rv.state = 'aim'; rv.timer = rv.aimTime;
+          rv.state = 'snap'; rv.timer = rv.snapTime;
           rv.aimX = player.x; rv.aimY = player.y;
-          sfxClick();
-        } else if (rv.state === 'aim') {
+          sfxClickClack();
+        } else if (rv.state === 'snap') {
           rv.timer -= dt;
           if (rv.timer <= 0) {
             const ang = Math.atan2(rv.aimY - rv.y, rv.aimX - rv.x);
             bullets.push({
-              x: rv.x, y: rv.y,
+              x: rv.x + Math.cos(ang) * 26, y: rv.y - 24 + Math.sin(ang) * 10,
               vx: Math.cos(ang) * rv.bulletSpd, vy: Math.sin(ang) * rv.bulletSpd,
-              r: 6, life: 2.0
+              r: 5.5, life: 2.0
             });
+            rv.flashT = 0.08;
             sfxShot();
             rv.state = 'idle'; rv.cooldown = rv.baseCooldown;
           }
@@ -928,27 +990,25 @@
 
     // 3. Fork Ambushes
     for (const fa of entities.forkAmbushes) {
-      if (!fa.triggered && Math.hypot(player.x - fa.x, player.y - fa.y) < 105) {
+      if (!fa.triggered && Math.hypot(player.x - fa.x, player.y - fa.y) < 102) {
         fa.triggered = true; fa.active = true; sfxBoom();
       }
       if (fa.active) {
-        fa.r = Math.min(fa.maxR, fa.r + 390 * dt);
+        fa.r = Math.min(fa.maxR, fa.r + 410 * dt);
         if (Math.hypot(player.x - fa.x, player.y - fa.y) < fa.r + player.r - 8) {
-          killPlayer('Falle in der Weggabelung!', 0, 1);
+          killPlayer('Schilder lügen im Wald grundsätzlich.', 0, 1);
         }
       }
     }
 
-    // 4. Rocks & Chaser Trees
+    // 4. Rocks & Rear Chaser Pines
     for (const rk of entities.rocks) {
       const res = resolveCircleObstacle(player.x, player.y, player.r, rk.x, rk.y, rk.r);
-      if (isCircleWalkable(res.x, res.y, player.r)) {
-        player.x = res.x; player.y = res.y;
-      }
+      if (isCircleWalkable(res.x, res.y, player.r)) { player.x = res.x; player.y = res.y; }
     }
     for (const ch of entities.chasers) {
-      if (!ch.active && player.y < ch.triggerY && player.y > ch.topLimitY) {
-        ch.active = true;
+      if (!ch.active && player.y < ch.wakeY && player.y > ch.topLimitY) {
+        ch.active = true; sfxClickClack();
       }
       if (ch.active && !ch.stuck) {
         const dx = player.x - ch.x; const dy = player.y - ch.y;
@@ -962,23 +1022,23 @@
         if (!blocked) { ch.x = cx; ch.y = cy; }
         else if (player.y < ch.topLimitY) { ch.stuck = true; }
         if (Math.hypot(player.x - ch.x, player.y - ch.y) < ch.r + player.r) {
-          killPlayer('Vom Verfolger-Baum geschnappt!', dx, dy);
+          killPlayer('Niemals einer Tanne den Rücken kehren.', dx, dy);
         }
       }
     }
 
-    // 5. Rolling Logs
+    // 5. Rolling Logs on Stairs
     for (const rl of entities.rollingLogs) {
-      if (player.y < rl.botY + 80 && player.y > rl.topY - 60) {
+      if (player.y < rl.botY + 70 && player.y > rl.topY - 50) {
         if (!rl.active) {
           rl.cooldown -= dt;
-          if (rl.cooldown <= 0) { rl.active = true; rl.y = rl.topY; sfxClick(); }
+          if (rl.cooldown <= 0) { rl.active = true; rl.y = rl.topY; sfxClickClack(); }
         } else {
           rl.y += rl.speed * dt;
           if (circleRectHit(player.x, player.y, player.r, rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h)) {
-            killPlayer('Vom Baumstamm überrollt!', 0, 1);
+            killPlayer('Treppen sind kein sicherer Ort.', 0, 1);
           }
-          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.45, 1.0 - (currentLevel / 180)); }
+          if (rl.y > rl.botY) { rl.active = false; rl.cooldown = Math.max(0.42, 0.95 - (currentLevel / 180)); }
         }
       }
     }
@@ -989,57 +1049,49 @@
         const pushY = player.y > pl.y + pl.h / 2 ? -1 : 1;
         const pushX = player.x < pl.x + pl.w / 2 ? 1 : -1;
         if (Math.abs(player.y - (pl.y + pl.h / 2)) > pl.h / 2 - 4) {
-          pl.y = Math.max(pl.minY, Math.min(pl.maxY, pl.y + pushY * 150 * dt));
+          pl.y = Math.max(pl.minY, Math.min(pl.maxY, pl.y + pushY * 155 * dt));
         } else {
-          pl.x = Math.max(pl.minX, Math.min(pl.maxX, pl.x + pushX * 150 * dt));
+          pl.x = Math.max(pl.minX, Math.min(pl.maxX, pl.x + pushX * 155 * dt));
         }
         if (player.y > pl.y + pl.h / 2) player.y = Math.max(player.y, pl.y + pl.h + player.r);
       }
     }
 
-    // 7. Suspicious Dirt Traps
-    for (const dtTrap of entities.dirtTraps) {
-      if (!dtTrap.triggered && Math.hypot(player.x - dtTrap.x, player.y - dtTrap.y) < dtTrap.r + player.r - 5) {
-        dtTrap.triggered = true; sfxBoom();
-        killPlayer('Sprungbaum aus dem Erdfleck!', 0, 1);
+    // 7. Purple Flower & Axe Baits
+    for (const fb of entities.flowerBaits) {
+      if (!fb.triggered && Math.hypot(player.x - fb.x, player.y - fb.y) < 46) {
+        fb.triggered = true; fb.handActive = true; fb.slamT = fb.maxSlam; sfxClickClack();
       }
-    }
-
-    // 8. Exploding Apples
-    for (const ap of entities.apples) {
-      if (ap.exploded) continue;
-      if (!ap.armed && Math.hypot(player.x - ap.x, player.y - ap.y) < ap.blastR - 2) {
-        ap.armed = true; ap.fuse = ap.maxFuse; sfxClick();
-      }
-      if (ap.armed) {
-        ap.fuse -= dt;
-        if (ap.fuse <= 0) {
-          ap.exploded = true; sfxBoom(); camera.shake = 8;
-          for (let k = 0; k < 14; k++) {
-            const a = Math.random() * Math.PI * 2;
-            particles.push({
-              x: ap.x, y: ap.y, vx: Math.cos(a) * 150, vy: Math.sin(a) * 150,
-              life: 0.42, color: k % 2 ? '#ff4d4d' : '#ffbe3b', size: 6
-            });
-          }
-          if (Math.hypot(player.x - ap.x, player.y - ap.y) < ap.blastR) {
-            killPlayer('Explodierender Apfel!', player.x - ap.x, player.y - ap.y);
+      if (fb.handActive) {
+        fb.slamT -= dt;
+        if (fb.slamT <= 0) {
+          fb.handActive = false; camera.shake = 10; sfxBoom();
+          if (Math.hypot(player.x - fb.x, player.y - fb.y) < fb.blastR) {
+            killPlayer(fb.type === 'axe' ? 'Die Axt war natürlich ein Köder.' : 'Die lila Blume wollte das auch nicht.', 0, 1);
           }
         }
       }
     }
 
-    // 9. Axe Baits
-    for (const ab of entities.axeBaits) {
-      if (!ab.triggered && Math.hypot(player.x - ab.x, player.y - ab.y) < 50) {
-        ab.triggered = true; ab.handActive = true; ab.slamT = ab.maxSlam; sfxClick();
+    // 8. Fake Finish Flags
+    for (const ff of entities.fakeFlags) {
+      if (ff.exploded) continue;
+      if (!ff.triggered && Math.hypot(player.x - ff.x, player.y - ff.y) < 58) {
+        ff.triggered = true; ff.active = true; ff.fuse = ff.maxFuse; sfxClickClack();
       }
-      if (ab.handActive) {
-        ab.slamT -= dt;
-        if (ab.slamT <= 0) {
-          ab.handActive = false; camera.shake = 10; sfxBoom();
-          if (Math.hypot(player.x - ab.x, player.y - ab.y) < ab.blastR) {
-            killPlayer('Vom Hand-Baum zerquetscht!', 0, 1);
+      if (ff.active) {
+        ff.fuse -= dt;
+        if (ff.fuse <= 0) {
+          ff.active = false; ff.exploded = true; sfxBoom(); camera.shake = 11;
+          for (let k = 0; k < 16; k++) {
+            const a = Math.random() * Math.PI * 2;
+            particles.push({
+              x: ff.x, y: ff.y, vx: Math.cos(a) * 165, vy: Math.sin(a) * 165,
+              life: 0.45, color: k % 2 ? '#ff4d4d' : '#f7e479', size: 6
+            });
+          }
+          if (Math.hypot(player.x - ff.x, player.y - ff.y) < 76) {
+            killPlayer('Das war nicht das echte Ziel.', 0, 1);
           }
         }
       }
@@ -1056,136 +1108,242 @@
       if (blocked) { bullets.splice(i, 1); continue; }
       if (Math.hypot(player.x - b.x, player.y - b.y) < player.r + b.r) {
         bullets.splice(i, 1);
-        killPlayer('Vom Revolver-Baum getroffen!', b.vx, b.vy);
+        killPlayer('Eine Tanne mit Revolver. Natürlich.', b.vx, b.vy);
         continue;
       }
       if (b.life <= 0) bullets.splice(i, 1);
     }
 
-    // Cabin Finish Check
+    // Real Cabin Finish
     if (circleRectHit(player.x, player.y, player.r, cabin.x, cabin.y + 35, cabin.w, cabin.h - 15)) {
       state = 'levelwin';
       sfxWin();
-      if (currentLevel < MAX_LEVEL && currentLevel + 1 > save.maxUnlocked) {
-        save.maxUnlocked = currentLevel + 1;
-      }
+      if (currentLevel < MAX_LEVEL && currentLevel + 1 > save.maxUnlocked) save.maxUnlocked = currentLevel + 1;
       save.selectedLevel = Math.min(MAX_LEVEL, currentLevel + 1);
       persistSave();
       hud.classList.add('hidden');
-      if (currentLevel >= MAX_LEVEL) {
-        winTitle.textContent = 'ALLE 100 LEVEL GESCHAFFT!';
-        btnNextLevel.textContent = 'Von Level 1 neu starten';
-      } else {
-        winTitle.textContent = `LEVEL ${currentLevel} GESCHAFFT`;
-        btnNextLevel.textContent = `Weiter zu Level ${currentLevel + 1}`;
-      }
+      winTitle.textContent = currentLevel >= MAX_LEVEL ? 'ALLE 100 LEVEL ÜBERLEBT!' : `LEVEL ${currentLevel} ÜBERLEBT`;
+      btnNextLevel.textContent = currentLevel >= MAX_LEVEL ? 'Von Level 1 neu starten' : `Weiter zu Level ${currentLevel + 1}`;
       winStats.textContent = `${currentBiome.name} · Zeit: ${formatTime(levelTime)} · Tode: ${levelDeaths}`;
       levelWinOverlay.classList.remove('hidden');
     }
 
-    // Camera follow
     camera.x += (player.x - camera.x) * Math.min(1, 7.5 * dt);
-    camera.y += ((player.y - 55) - camera.y) * Math.min(1, 7.5 * dt);
-
+    camera.y += ((player.y - 50) - camera.y) * Math.min(1, 7.5 * dt);
     hudMain.textContent = `Level ${currentLevel}/${MAX_LEVEL} · ${formatTime(levelTime)} · Tode: ${levelDeaths}`;
-    hudBiome.textContent = `${currentBiome.name} · Gefahr ${currentLevel}%`;
+    hudBiome.textContent = currentBiome.name;
   }
 
-  // Drawing Helpers
-  function drawTree(x, y, scale = 1, angry = false, canopyColor = '#2b7038', angle = 0) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
-    ctx.fillStyle = 'rgba(0,0,0,0.28)';
-    ctx.beginPath(); ctx.ellipse(0, 6, 28, 12, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.rotate(angle);
-    ctx.fillStyle = '#6b4423'; ctx.strokeStyle = '#2d1a0a'; ctx.lineWidth = 3;
-    ctx.fillRect(-10, -34, 20, 40); ctx.strokeRect(-10, -34, 20, 40);
-    ctx.fillStyle = canopyColor; ctx.strokeStyle = '#14331a'; ctx.lineWidth = 3.5;
-    ctx.beginPath(); ctx.arc(0, -56, 32, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    if (angry) {
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(-10, -54, 5, 0, Math.PI * 2); ctx.arc(10, -54, 5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#111';
-      ctx.beginPath(); ctx.arc(-9, -54, 2.5, 0, Math.PI * 2); ctx.arc(9, -54, 2.5, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#14331a'; ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(-17, -63); ctx.lineTo(-4, -58);
-      ctx.moveTo(17, -63); ctx.lineTo(4, -58);
-      ctx.stroke();
+  // Drawing Helpers (2.5D Diorama Style matching screenshot)
+  function drawLowPolyPine(c, x, y, scale = 1, angle = 0, showGun = false, gunSide = -1, flash = false) {
+    c.save();
+    c.translate(x, y);
+    c.scale(scale, scale);
+
+    // Long directional sun shadow (upper-left like screenshot)
+    c.fillStyle = 'rgba(0, 0, 0, 0.24)';
+    c.beginPath();
+    c.ellipse(-18, -4, 34, 14, -0.35, 0, Math.PI * 2);
+    c.fill();
+
+    c.rotate(angle);
+    // Short brown trunk
+    c.fillStyle = '#5c3a1e';
+    c.fillRect(-7, -14, 14, 18);
+
+    // 3-tier vibrant low-poly cone (100% innocent & identical for all pines!)
+    const p1 = currentBiome.pine;
+    const p2 = currentBiome.pineDark;
+    // Bottom tier
+    c.fillStyle = p1;
+    c.beginPath(); c.moveTo(0, -56); c.lineTo(-32, -10); c.lineTo(32, -10); c.closePath(); c.fill();
+    c.fillStyle = p2;
+    c.beginPath(); c.moveTo(0, -56); c.lineTo(0, -10); c.lineTo(32, -10); c.closePath(); c.fill();
+    // Middle tier
+    c.fillStyle = p1;
+    c.beginPath(); c.moveTo(0, -76); c.lineTo(-26, -34); c.lineTo(26, -34); c.closePath(); c.fill();
+    c.fillStyle = p2;
+    c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -34); c.lineTo(26, -34); c.closePath(); c.fill();
+    // Top tip
+    c.fillStyle = '#73e827';
+    c.beginPath(); c.moveTo(0, -96); c.lineTo(-17, -56); c.lineTo(17, -56); c.closePath(); c.fill();
+    c.fillStyle = p1;
+    c.beginPath(); c.moveTo(0, -96); c.lineTo(0, -56); c.lineTo(17, -56); c.closePath(); c.fill();
+
+    // Gray revolver with brown grip ONLY when snapping out!
+    if (showGun) {
+      c.save();
+      c.translate(gunSide * 20, -36);
+      c.scale(gunSide, 1);
+      c.fillStyle = '#8d5524';
+      c.fillRect(-4, 2, 7, 12);
+      c.fillStyle = '#6c757d';
+      c.strokeStyle = '#222';
+      c.lineWidth = 1.5;
+      c.fillRect(-2, -4, 24, 8);
+      c.strokeRect(-2, -4, 24, 8);
+      if (flash) {
+        c.fillStyle = '#fff066';
+        c.beginPath(); c.arc(26, 0, 10, 0, Math.PI * 2); c.fill();
+      }
+      c.restore();
     }
-    ctx.restore();
+    c.restore();
   }
 
-  function drawGlassesShape(x, y) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.strokeStyle = '#111'; ctx.lineWidth = 1.8;
-    ctx.fillStyle = save.glasses === 'shades' ? '#111' : 'rgba(210,240,255,0.65)';
+  function drawGlassesShape(c, x, y) {
+    c.save();
+    c.translate(x, y);
+    c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
+    c.fillStyle = save.glasses === 'shades' ? '#111' : 'rgba(230,248,255,0.85)';
     if (save.glasses === 'round') {
-      ctx.beginPath(); ctx.arc(-4, 0, 3.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.arc(4, 0, 3.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      c.beginPath(); c.arc(-4.2, 0, 3.5, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.beginPath(); c.arc(4.2, 0, 3.5, 0, Math.PI * 2); c.fill(); c.stroke();
     } else {
-      ctx.fillRect(-7.5, -2.5, 6, 5); ctx.strokeRect(-7.5, -2.5, 6, 5);
-      ctx.fillRect(1.5, -2.5, 6, 5); ctx.strokeRect(1.5, -2.5, 6, 5);
+      c.fillRect(-8, -2.8, 6.5, 5.2); c.strokeRect(-8, -2.8, 6.5, 5.2);
+      c.fillRect(1.5, -2.8, 6.5, 5.2); c.strokeRect(1.5, -2.8, 6.5, 5.2);
     }
-    ctx.restore();
+    c.restore();
   }
 
-  function drawPlayer() {
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath(); ctx.ellipse(0, 8, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
-    if (!player.alive) ctx.rotate(player.ragdollRot);
-    const bob = player.alive ? Math.sin(player.walkCycle) * 2.5 : 0;
+  function drawChibiCharacter(c, x, y, walkCycle, alive, rot, scale = 1) {
+    c.save();
+    c.translate(x, y);
+    c.scale(scale, scale);
 
-    ctx.fillStyle = '#2c3e50';
-    ctx.fillRect(-7, -2 + bob * 0.5, 5, 11);
-    ctx.fillRect(2, -2 - bob * 0.5, 5, 11);
+    // Directional sun shadow
+    c.fillStyle = 'rgba(0,0,0,0.28)';
+    c.beginPath(); c.ellipse(-7, 5, 14, 6, -0.3, 0, Math.PI * 2); c.fill();
 
-    ctx.fillStyle = save.shirt; ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(-10, -18 + bob * 0.3, 20, 18, 5); ctx.fill(); ctx.stroke();
+    if (!alive) c.rotate(rot);
+    const bob = alive ? Math.sin(walkCycle) * 2.5 : 0;
 
-    ctx.fillStyle = '#f2c9a0';
-    ctx.beginPath(); ctx.arc(0, -25 + bob * 0.3, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    // Legs (yellow-greenish hiking pants like screenshot)
+    c.fillStyle = '#b8b83d';
+    c.fillRect(-6, -2 + bob * 0.5, 5, 11);
+    c.fillRect(1, -2 - bob * 0.5, 5, 11);
+    c.fillStyle = '#2b2b2b';
+    c.fillRect(-6, 7 + bob * 0.5, 5, 3);
+    c.fillRect(1, 7 - bob * 0.5, 5, 3);
 
-    ctx.fillStyle = save.hair;
-    ctx.beginPath(); ctx.arc(0, -28 + bob * 0.3, 9.5, Math.PI, Math.PI * 2); ctx.fill();
+    // Shirt
+    c.fillStyle = save.shirt;
+    c.strokeStyle = '#1a1a1a'; c.lineWidth = 1.8;
+    c.beginPath(); c.roundRect(-9, -17 + bob * 0.3, 18, 16, 5); c.fill(); c.stroke();
 
-    if (player.alive) drawGlassesShape(0, -25 + bob * 0.3);
+    // Big Chibi Head
+    c.fillStyle = '#f5cfa8';
+    c.beginPath(); c.arc(0, -27 + bob * 0.3, 11.5, 0, Math.PI * 2); c.fill(); c.stroke();
 
-    const hy = -33 + bob * 0.3;
+    // Hair
+    c.fillStyle = save.hair;
+    c.beginPath(); c.arc(0, -30 + bob * 0.3, 11.5, Math.PI * 0.92, Math.PI * 2.08); c.fill();
+
+    if (alive) drawGlassesShape(c, 0, -26 + bob * 0.3);
+
+    // Hat
+    const hy = -37 + bob * 0.3;
     if (save.hat === 'straw') {
-      ctx.fillStyle = '#e5c158';
-      ctx.beginPath(); ctx.ellipse(0, hy + 2, 16, 4.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.arc(0, hy + 1, 8, Math.PI, Math.PI * 2); ctx.fill(); ctx.stroke();
+      c.fillStyle = '#e5c158';
+      c.beginPath(); c.ellipse(0, hy + 2, 16, 4.5, 0, 0, Math.PI * 2); c.fill(); c.stroke();
+      c.beginPath(); c.arc(0, hy + 1, 8, Math.PI, Math.PI * 2); c.fill(); c.stroke();
     } else if (save.hat === 'cap') {
-      ctx.fillStyle = '#2563eb';
-      ctx.beginPath(); ctx.arc(0, hy + 2, 9.5, Math.PI, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.fillRect(0, hy, 12, 3);
+      c.fillStyle = '#2563eb';
+      c.beginPath(); c.arc(0, hy + 2, 10, Math.PI, Math.PI * 2); c.fill(); c.stroke();
+      c.fillRect(0, hy, 12, 3);
+    } else if (save.hat === 'tinfoil') {
+      c.fillStyle = '#d1d5db';
+      c.beginPath(); c.moveTo(-10, hy + 3); c.lineTo(0, hy - 14); c.lineTo(10, hy + 3); c.closePath(); c.fill(); c.stroke();
     } else if (save.hat === 'helmet') {
-      ctx.fillStyle = '#facc15';
-      ctx.beginPath(); ctx.arc(0, hy + 3, 11, Math.PI, Math.PI * 2); ctx.fill(); ctx.stroke();
+      c.fillStyle = '#facc15';
+      c.beginPath(); c.arc(0, hy + 3, 11.5, Math.PI, Math.PI * 2); c.fill(); c.stroke();
     } else if (save.hat === 'crown') {
-      ctx.fillStyle = '#fbbf24';
-      ctx.beginPath();
-      ctx.moveTo(-8, hy + 2); ctx.lineTo(-8, hy - 7); ctx.lineTo(-3, hy - 2);
-      ctx.lineTo(0, hy - 9); ctx.lineTo(3, hy - 2); ctx.lineTo(8, hy - 7); ctx.lineTo(8, hy + 2);
-      ctx.closePath(); ctx.fill(); ctx.stroke();
+      c.fillStyle = '#fbbf24';
+      c.beginPath();
+      c.moveTo(-8, hy + 2); c.lineTo(-8, hy - 7); c.lineTo(-3, hy - 2);
+      c.lineTo(0, hy - 9); c.lineTo(3, hy - 2); c.lineTo(8, hy - 7); c.lineTo(8, hy + 2);
+      c.closePath(); c.fill(); c.stroke();
     }
-    ctx.restore();
+    c.restore();
+  }
 
-    if (player.glasses) {
-      ctx.save();
-      ctx.translate(player.glasses.x, player.glasses.y);
-      ctx.rotate(player.glasses.rot);
-      drawGlassesShape(0, 0);
-      ctx.restore();
+  function drawCobbleRect(x, y, w, h) {
+    ctx.fillStyle = currentBiome.stone;
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = 'rgba(40,44,48,0.45)';
+    ctx.lineWidth = 1.5;
+    for (let sy = y; sy < y + h; sy += 18) {
+      ctx.beginPath(); ctx.moveTo(x, sy); ctx.lineTo(x + w, sy); ctx.stroke();
+      const off = ((Math.floor(sy / 18) % 2) * 14);
+      for (let sx = x + off; sx < x + w; sx += 24) {
+        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, Math.min(y + h, sy + 18)); ctx.stroke();
+      }
     }
   }
 
-  function render() {
+  function drawStairs(x, y, w, h) {
+    // Wooden steps
+    ctx.fillStyle = '#8c6239';
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#6e4a28';
+    for (let sy = y + 8; sy < y + h; sy += 13) {
+      ctx.fillRect(x + 4, sy, w - 8, 4);
+    }
+    // Gray handrails left & right (matching screenshot!)
+    ctx.fillStyle = '#9ea4ab';
+    ctx.strokeStyle = '#555b61';
+    ctx.lineWidth = 2;
+    ctx.fillRect(x - 4, y - 3, 9, h + 6);
+    ctx.strokeRect(x - 4, y - 3, 9, h + 6);
+    ctx.fillRect(x + w - 5, y - 3, 9, h + 6);
+    ctx.strokeRect(x + w - 5, y - 3, 9, h + 6);
+  }
+
+  function drawLowPolyRock(x, y, r) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(-8, 6, r * 1.05, r * 0.72, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#c2bcb2';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.85, r * 0.35); ctx.lineTo(-r * 0.55, -r * 0.75);
+    ctx.lineTo(r * 0.35, -r * 0.9); ctx.lineTo(r * 0.92, -r * 0.1);
+    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#999288';
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.1); ctx.lineTo(r * 0.92, -r * 0.1);
+    ctx.lineTo(r * 0.65, r * 0.75); ctx.lineTo(-r * 0.3, r * 0.85);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPurpleFlower(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#c892eb';
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      ctx.beginPath(); ctx.ellipse(Math.cos(a) * 6, Math.sin(a) * 5, 5, 3.5, a, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = '#f7e479';
+    ctx.beginPath(); ctx.arc(0, 0, 3.2, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function renderMenuPreview(now) {
+    if (state !== 'menu') return;
+    prevCtx.clearRect(0, 0, 156, 168);
+    prevCtx.fillStyle = currentBiome.grass;
+    prevCtx.fillRect(0, 0, 156, 168);
+    prevCtx.fillStyle = currentBiome.cliff;
+    prevCtx.fillRect(0, 134, 156, 34);
+    drawChibiCharacter(prevCtx, 78, 114, now * 0.008, true, 0, 1.85);
+  }
+
+  function render(now) {
+    renderMenuPreview(now);
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = canvas.clientWidth; const h = canvas.clientHeight;
     if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
@@ -1193,110 +1351,122 @@
     }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    ctx.fillStyle = currentBiome.bg;
+    // Outer cliff valley base
+    ctx.fillStyle = currentBiome.cliffDark;
     ctx.fillRect(0, 0, w, h);
 
     ctx.save();
     const sx = (Math.random() - 0.5) * camera.shake;
     const sy = (Math.random() - 0.5) * camera.shake;
-    ctx.translate(w / 2 - camera.x + sx, h / 2 - camera.y + sy);
+    ctx.translate(w / 2 + sx, h / 2 + sy);
+    ctx.scale(camera.zoom, camera.zoom);
+    ctx.translate(-camera.x, -camera.y);
 
-    // Paths
-    ctx.fillStyle = currentBiome.path;
-    for (const c of corridors) {
-      ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 18); ctx.fill();
+    // 1. Terraced Grass Plateaus with faceted cliff walls
+    for (const tr of terraces) {
+      // Cliff front wall
+      ctx.fillStyle = currentBiome.cliff;
+      ctx.fillRect(tr.x, tr.y + tr.h - 6, tr.w, tr.cliffH + 6);
+      // Facet shadow lines on cliff
+      ctx.fillStyle = currentBiome.cliffDark;
+      for (let fx = tr.x + 35; fx < tr.x + tr.w - 20; fx += 75) {
+        ctx.fillRect(fx, tr.y + tr.h - 4, 24, tr.cliffH + 4);
+      }
+      // Grass top
+      ctx.fillStyle = currentBiome.grass;
+      ctx.fillRect(tr.x, tr.y, tr.w, tr.h);
+      ctx.fillStyle = currentBiome.grassHi;
+      ctx.fillRect(tr.x + 6, tr.y + 6, tr.w - 12, 10);
     }
 
-    // Start Picnic Blanket
-    ctx.fillStyle = '#d94848';
-    ctx.fillRect(spawnPos.x - 55, spawnPos.y + 30, 110, 68);
-    ctx.fillStyle = '#f8f5ec';
-    for (let px = spawnPos.x - 55; px < spawnPos.x + 55; px += 22) {
-      for (let py = spawnPos.y + 30; py < spawnPos.y + 98; py += 22) {
-        if (((Math.round(px) + Math.round(py)) / 22) % 2 === 0) ctx.fillRect(px, py, 11, 11);
+    // 2. Cobblestone Paths
+    for (const cp of cobblePaths) drawCobbleRect(cp.x, cp.y, cp.w, cp.h);
+
+    // 3. Wooden Stairs with Gray Handrails
+    for (const st of stairVisuals) drawStairs(st.x, st.y, st.w, st.h);
+
+    // 4. Stylized Sharp Grass Tufts
+    ctx.fillStyle = '#317d0a';
+    for (const gt of grassTufts) {
+      for (let b = 0; b < gt.blades; b++) {
+        const bx = gt.x + (b - 1) * 5;
+        ctx.beginPath();
+        ctx.moveTo(bx - 3, gt.y);
+        ctx.lineTo(bx, gt.y - 14 - (b % 2) * 5);
+        ctx.lineTo(bx + 3, gt.y);
+        ctx.closePath();
+        ctx.fill();
       }
     }
 
-    // Stairs
-    ctx.fillStyle = '#8b6340';
-    for (const st of entities.stairs) {
-      for (let sy2 = st.y; sy2 < st.y + st.h; sy2 += 26) ctx.fillRect(st.x, sy2, st.w, 15);
-    }
-
-    // Dirt Traps
-    for (const dtTrap of entities.dirtTraps) {
-      ctx.fillStyle = '#6e4c2e';
-      ctx.beginPath(); ctx.ellipse(dtTrap.x, dtTrap.y, dtTrap.r, dtTrap.r * 0.72, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#472f1a'; ctx.lineWidth = 3; ctx.stroke();
-    }
-
-    // Signs
+    // 5. Lying Signs
     for (const sg of entities.signs) {
-      ctx.fillStyle = '#7c522c'; ctx.fillRect(sg.x - 4, sg.y, 8, 28);
-      ctx.fillStyle = '#e5cfa3'; ctx.fillRect(sg.x - 56, sg.y - 14, 112, 22);
-      ctx.fillStyle = '#222'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(sg.text, sg.x, sg.y + 1);
+      ctx.fillStyle = '#6b4423'; ctx.fillRect(sg.x - 4, sg.y, 8, 26);
+      ctx.fillStyle = '#e5cfa3'; ctx.strokeStyle = '#4a2e16'; ctx.lineWidth = 2;
+      ctx.fillRect(sg.x - 56, sg.y - 16, 112, 22); ctx.strokeRect(sg.x - 56, sg.y - 16, 112, 22);
+      ctx.fillStyle = '#1f1f1f'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(sg.text, sg.x, sg.y - 1);
     }
 
-    // Axe Baits
-    for (const ab of entities.axeBaits) {
-      ctx.save(); ctx.translate(ab.x, ab.y);
-      ctx.fillStyle = '#8d5524'; ctx.fillRect(-3, -16, 6, 32);
-      ctx.fillStyle = '#cbd5e1';
-      ctx.beginPath(); ctx.moveTo(3, -16); ctx.lineTo(16, -20); ctx.lineTo(16, -4); ctx.lineTo(3, -8); ctx.fill();
-      if (ab.handActive) {
+    // 6. Purple Flower & Axe Baits
+    for (const fb of entities.flowerBaits) {
+      if (fb.type === 'flower') {
+        drawPurpleFlower(fb.x, fb.y);
+      } else {
+        ctx.save(); ctx.translate(fb.x, fb.y);
+        ctx.fillStyle = '#8d5524'; ctx.fillRect(-3, -14, 6, 28);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath(); ctx.moveTo(3, -14); ctx.lineTo(15, -18); ctx.lineTo(15, -4); ctx.lineTo(3, -7); ctx.fill();
+        ctx.restore();
+      }
+      if (fb.handActive) {
         ctx.strokeStyle = '#ff4d4d'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(0, 0, ab.blastR * (1 - ab.slamT / ab.maxSlam), 0, Math.PI * 2); ctx.stroke();
-      }
-      ctx.restore();
-    }
-
-    // Revolver Aim Lines
-    for (const rv of entities.revolvers) {
-      if (rv.state === 'aim') {
-        ctx.strokeStyle = 'rgba(255, 60, 60, 0.8)'; ctx.lineWidth = 2.5;
-        ctx.setLineDash([8, 6]);
-        ctx.beginPath(); ctx.moveTo(rv.x, rv.y - 30); ctx.lineTo(rv.aimX, rv.aimY); ctx.stroke();
-        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(fb.x, fb.y, fb.blastR * (1 - fb.slamT / fb.maxSlam), 0, Math.PI * 2); ctx.stroke();
       }
     }
 
-    // Y-Sorted Entities
+    // 7. Fake Finish Flags
+    for (const ff of entities.fakeFlags) {
+      if (ff.exploded) continue;
+      ctx.fillStyle = '#d1d5db'; ctx.fillRect(ff.x - 2, ff.y - 36, 4, 38);
+      ctx.fillStyle = ff.active && Math.floor(ff.fuse * 24) % 2 ? '#ff4d4d' : '#f7e479';
+      ctx.beginPath(); ctx.moveTo(ff.x + 2, ff.y - 36); ctx.lineTo(ff.x + 28, ff.y - 26); ctx.lineTo(ff.x + 2, ff.y - 16); ctx.closePath(); ctx.fill();
+    }
+
+    // 8. Y-Sorted Objects
     const drawables = [];
-    for (const t of decoTrees) {
+    for (const t of decoPines) {
       if (Math.abs(t.y - camera.y) < h * 0.85) {
-        drawables.push({ y: t.y, fn: () => drawTree(t.x, t.y, t.scale, false, t.hue) });
+        drawables.push({ y: t.y, fn: () => drawLowPolyPine(ctx, t.x, t.y, t.scale, 0) });
       }
     }
-    for (const ft of entities.fallTrees) {
-      drawables.push({ y: ft.y, fn: () => drawTree(ft.x, ft.y, 1.15, true, '#2f7a3e', ft.dir * ft.angle) });
+    for (const pair of entities.fallPairs) {
+      drawables.push({ y: pair.p1.y, fn: () => drawLowPolyPine(ctx, pair.p1.x, pair.p1.y, 1.12, pair.p1.dir * pair.p1.angle) });
+      drawables.push({ y: pair.p2.y, fn: () => drawLowPolyPine(ctx, pair.p2.x, pair.p2.y, 1.12, pair.p2.dir * pair.p2.angle) });
     }
     for (const rv of entities.revolvers) {
-      drawables.push({ y: rv.y, fn: () => drawTree(rv.x, rv.y, 1.05, true, '#3a6b2c') });
+      drawables.push({
+        y: rv.y,
+        fn: () => drawLowPolyPine(ctx, rv.x, rv.y, 1.08, 0, rv.state === 'snap' || rv.flashT > 0, rv.side, rv.flashT > 0)
+      });
     }
     for (const fa of entities.forkAmbushes) {
       if (fa.active) {
         drawables.push({
           y: fa.y,
           fn: () => {
-            ctx.fillStyle = 'rgba(220,60,40,0.35)';
+            ctx.fillStyle = 'rgba(220,50,35,0.35)';
             ctx.beginPath(); ctx.arc(fa.x, fa.y, fa.r, 0, Math.PI * 2); ctx.fill();
-            drawTree(fa.x, fa.y, 1.25, true, '#8c2d23');
+            drawLowPolyPine(ctx, fa.x, fa.y, 1.25, 0);
           }
         });
       }
     }
     for (const rk of entities.rocks) {
-      drawables.push({
-        y: rk.y + 10,
-        fn: () => {
-          ctx.fillStyle = '#6c757d'; ctx.strokeStyle = '#343a40'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.arc(rk.x, rk.y, rk.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        }
-      });
+      drawables.push({ y: rk.y + 8, fn: () => drawLowPolyRock(rk.x, rk.y, rk.r) });
     }
     for (const ch of entities.chasers) {
-      drawables.push({ y: ch.y, fn: () => drawTree(ch.x, ch.y, 1.12, true, '#5c2d1f') });
+      drawables.push({ y: ch.y, fn: () => drawLowPolyPine(ctx, ch.x, ch.y, 1.1, 0) });
     }
     for (const rl of entities.rollingLogs) {
       if (rl.active) {
@@ -1304,8 +1474,7 @@
           y: rl.y,
           fn: () => {
             ctx.fillStyle = '#6b4423'; ctx.strokeStyle = '#2d1a0a'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.roundRect(rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h, 12);
-            ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.roundRect(rl.x - rl.w / 2, rl.y - rl.h / 2, rl.w, rl.h, 12); ctx.fill(); ctx.stroke();
           }
         });
       }
@@ -1319,43 +1488,40 @@
         }
       });
     }
-    for (const ap of entities.apples) {
-      if (ap.exploded) continue;
-      drawables.push({
-        y: ap.y,
-        fn: () => {
-          ctx.fillStyle = ap.armed && Math.floor(ap.fuse * 20) % 2 ? '#fff' : '#d62828';
-          ctx.strokeStyle = '#4a0c0c'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(ap.x, ap.y, ap.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-          ctx.fillStyle = '#38b000'; ctx.fillRect(ap.x - 2, ap.y - ap.r - 5, 4, 6);
-        }
-      });
-    }
-    // Finish Cabin (gold roof on Level 100)
+    // Finish Cabin
     drawables.push({
       y: cabin.y + cabin.h,
       fn: () => {
-        ctx.fillStyle = '#8b5a2b'; ctx.strokeStyle = '#2b180a'; ctx.lineWidth = 4;
+        ctx.fillStyle = '#8b5a2b'; ctx.strokeStyle = '#2b180a'; ctx.lineWidth = 3.5;
         ctx.fillRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
         ctx.strokeRect(cabin.x, cabin.y + 25, cabin.w, cabin.h - 25);
         ctx.fillStyle = currentLevel === MAX_LEVEL ? '#eab308' : '#a63429';
         ctx.beginPath();
-        ctx.moveTo(cabin.x - 14, cabin.y + 28);
-        ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
-        ctx.lineTo(cabin.x + cabin.w + 14, cabin.y + 28);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#f6e27f';
+        ctx.moveTo(cabin.x - 14, cabin.y + 28); ctx.lineTo(cabin.x + cabin.w / 2, cabin.y - 24);
+        ctx.lineTo(cabin.x + cabin.w + 14, cabin.y + 28); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#f7e479';
         ctx.fillRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
         ctx.strokeRect(cabin.x + cabin.w / 2 - 16, cabin.y + cabin.h - 38, 32, 38);
       }
     });
 
-    drawables.push({ y: player.y, fn: drawPlayer });
+    // Player & flying glasses
+    drawables.push({
+      y: player.y,
+      fn: () => {
+        drawChibiCharacter(ctx, player.x, player.y, player.walkCycle, player.alive, player.ragdollRot, 1);
+        if (player.glasses) {
+          ctx.save(); ctx.translate(player.glasses.x, player.glasses.y); ctx.rotate(player.glasses.rot);
+          drawGlassesShape(ctx, 0, 0); ctx.restore();
+        }
+      }
+    });
+
     drawables.sort((a, b) => a.y - b.y);
     for (const d of drawables) d.fn();
 
     // Bullets
-    ctx.fillStyle = '#ffe066'; ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
+    ctx.fillStyle = '#ffe066'; ctx.strokeStyle = '#111'; ctx.lineWidth = 1.8;
     for (const b of bullets) {
       ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
@@ -1364,16 +1530,30 @@
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
     }
+
+    // Sarcastic Death One-Liner floating right above crash site
+    if (state === 'dead' && deathLine) {
+      ctx.save();
+      ctx.font = 'bold 14px system-ui, sans-serif';
+      const tw = ctx.measureText(deathLine).width + 20;
+      ctx.fillStyle = 'rgba(18, 24, 14, 0.92)';
+      ctx.strokeStyle = '#f7e479'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(deathPos.x - tw / 2, deathPos.y - 24, tw, 28, 8); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#f7e479'; ctx.textAlign = 'center';
+      ctx.fillText(deathLine, deathPos.x, deathPos.y - 5);
+      ctx.restore();
+    }
+
     ctx.restore();
 
     // Virtual Joystick
     if (joy.active && state === 'playing') {
       ctx.save();
       ctx.beginPath(); ctx.arc(joy.ox, joy.oy, joy.maxR, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.38)'; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.beginPath(); ctx.arc(joy.cx, joy.cy, 22, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(246,226,127,0.72)'; ctx.fill();
+      ctx.fillStyle = 'rgba(247,228,121,0.78)'; ctx.fill();
       ctx.restore();
     }
   }
@@ -1384,7 +1564,7 @@
     const dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
     update(dt);
-    render();
+    render(now);
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);

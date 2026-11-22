@@ -1,16 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#1e3524"/>
-  <ellipse cx="256" cy="430" rx="110" ry="26" fill="#112015"/>
-  <rect x="220" y="290" width="72" height="140" rx="14" fill="#6b4423" stroke="#2d1a0a" stroke-width="10"/>
-  <circle cx="256" cy="210" r="128" fill="#2f7a3e" stroke="#183d1f" stroke-width="12"/>
-  <circle cx="176" cy="245" r="76" fill="#276934" stroke="#183d1f" stroke-width="10"/>
-  <circle cx="336" cy="245" r="76" fill="#276934" stroke="#183d1f" stroke-width="10"/>
-  <circle cx="256" cy="140" r="82" fill="#3a8f4b" stroke="#183d1f" stroke-width="10"/>
-  <ellipse cx="218" cy="218" rx="16" ry="20" fill="#fff"/>
-  <ellipse cx="294" cy="218" rx="16" ry="20" fill="#fff"/>
-  <circle cx="222" cy="222" r="8" fill="#111"/>
-  <circle cx="290" cy="222" r="8" fill="#111"/>
-  <path d="M188 188 L244 208" stroke="#183d1f" stroke-width="14" stroke-linecap="round"/>
-  <path d="M324 188 L268 208" stroke="#183d1f" stroke-width="14" stroke-linecap="round"/>
-  <path d="M214 270 Q256 242 298 270" fill="none" stroke="#183d1f" stroke-width="12" stroke-linecap="round"/>
+  <rect width="512" height="512" rx="96" fill="#2d5a17"/>
+  <ellipse cx="256" cy="434" rx="125" ry="28" fill="#1b380d"/>
+  <rect x="228" y="340" width="56" height="90" rx="8" fill="#6b4423"/>
+  <polygon points="256,165 110,368 402,368" fill="#3fa110"/>
+  <polygon points="256,165 256,368 402,368" fill="#32850b"/>
+  <polygon points="256,105 140,280 372,280" fill="#52c41a"/>
+  <polygon points="256,105 256,280 372,280" fill="#42a312"/>
+  <polygon points="256,52 178,192 334,192" fill="#6be024"/>
+  <polygon points="256,52 256,192 334,192" fill="#58bf1b"/>
+  <rect x="310" y="255" width="96" height="24" rx="5" fill="#6e7681" stroke="#222" stroke-width="6"/>
+  <rect x="302" y="274" width="26" height="44" rx="6" fill="#8d5524" stroke="#222" stroke-width="6"/>
 </svg>

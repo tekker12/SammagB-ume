@@ -1,13 +1,13 @@
 {
-  "name": "Bäume hassen dich – 100 Level",
+  "name": "Bäume hassen dich – Troll-Edition (100 Level)",
   "short_name": "Bäume hassen dich",
-  "description": "3/4-Top-Down-Geschicklichkeitsspiel für Android und Desktop mit 100 ansteigenden Leveln und 10 Biomen.",
+  "description": "2.5D-Diorama-Geschicklichkeitsspiel für Android und Desktop mit 100 Leveln, getarnten Low-Poly-Tannen und Rage-Loop.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#142619",
-  "theme_color": "#1e3524",
+  "background_color": "#2b4d16",
+  "theme_color": "#2d5a17",
   "icons": [
     {
       "src": "./icon.svg",
