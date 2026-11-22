@@ -1,0 +1,19 @@
+{
+  "name": "Bäume hassen dich – 100 Level",
+  "short_name": "Bäume hassen dich",
+  "description": "3/4-Top-Down-Geschicklichkeitsspiel für Android und Desktop mit 100 ansteigenden Leveln und 10 Biomen.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#142619",
+  "theme_color": "#1e3524",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
